@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/android/libs/fbjni" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/FP16" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/FXdiv" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/NNPACK" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/QNNPACK" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/benchmark" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/cpuinfo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/cub" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/eigen" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/fbgemm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/fbgemm/third_party/asmjit" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/fbgemm/third_party/cpuinfo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/fbgemm/third_party/googletest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/foxi" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/gemmlowp/gemmlowp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/gloo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/googletest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/ideep" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/ideep/mkl-dnn" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/ios-cmake" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/nccl/nccl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/neon2sse" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/onnx" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/onnx-tensorrt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/onnx-tensorrt/third_party/onnx" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/onnx-tensorrt/third_party/onnx/third_party/benchmark" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/onnx-tensorrt/third_party/onnx/third_party/pybind11" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/onnx-tensorrt/third_party/onnx/third_party/pybind11/tools/clang" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/onnx/third_party/benchmark" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/onnx/third_party/pybind11" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/onnx/third_party/pybind11/tools/clang" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/protobuf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/protobuf/third_party/benchmark" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/protobuf/third_party/googletest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/psimd" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/pthreadpool" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/pybind11" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/pybind11/tools/clang" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/python-enum" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/python-peachpy" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/python-six" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/sleef" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/tbb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/zstd" vcs="Git" />
+  </component>
+</project>
