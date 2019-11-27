@@ -63,7 +63,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     env = ArmEnv()
-    policy_name_vec = ['TD3', 'Average_TD3', 'TD3_RNN', 'ATD3_RNN']
+    policy_name_vec = ['TD3', 'Average_TD3', 'ATD3', 'TD3_RNN', 'ATD3_RNN']
     for policy_name in policy_name_vec:
         for i in range(0, 5):
             args.policy_name = policy_name
