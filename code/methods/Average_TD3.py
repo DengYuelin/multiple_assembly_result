@@ -64,7 +64,7 @@ class Critic(nn.Module):
 
 
 class Average_TD3(object):
-    def __init__(self, state_dim, action_dim, max_action):
+    def __init__(self, state_dim, action_dim, max_action, num_steps):
         self.actor = Actor(state_dim, action_dim, max_action).to(device)
         self.actor_target = Actor(state_dim, action_dim, max_action).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
@@ -76,7 +76,7 @@ class Average_TD3(object):
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
         self.max_action = max_action
-        self.critic_target_list = deque(maxlen=20)
+        self.critic_target_list = deque(maxlen=num_steps)
         self.critic_target_list.append(cp.deepcopy(self.critic_target))
         self.it = 0
 

@@ -30,8 +30,8 @@ def main(env, args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--policy_name", default='TD3')  # Policy name
-    parser.add_argument("--env_name", default="Peg-in-hole-single_assembly")  # OpenAI gym environment name
-    parser.add_argument("--log_path", default='runs/single_assembly')
+    parser.add_argument("--env_name", default="Peg-in-hole-triple_assembly")  # OpenAI gym environment name
+    parser.add_argument("--log_path", default='runs/triple_assembly')
 
     parser.add_argument("--eval_only", default=False)
     parser.add_argument("--render", default=False)
@@ -60,12 +60,17 @@ if __name__ == "__main__":
     parser.add_argument("--policy_freq", default=2, type=int)  # Frequency of delayed policy updates
     parser.add_argument("--max_episode_steps", default=200, type=int)
 
+    parser.add_argument("--average_steps", default=20, type=int)
+
     args = parser.parse_args()
 
     env = ArmEnv()
     policy_name_vec = ['Average_TD3']
+    average_steps = [5, 10, 20, 40]
     for policy_name in policy_name_vec:
-        for i in range(0, 5):
-            args.policy_name = policy_name
-            args.seed = i
-            main(env, args)
+        for num_steps in average_steps:
+            args.average_steps = num_steps
+            for i in range(0, 5):
+                args.policy_name = policy_name
+                args.seed = i
+                main(env, args)

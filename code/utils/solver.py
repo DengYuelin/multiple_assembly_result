@@ -51,7 +51,7 @@ class Solver(object):
         elif 'TD3_RNN' == args.policy_name:
             policy = TD3_RNN.TD3_RNN(state_dim, action_dim, max_action)
         elif 'Average_TD3' == args.policy_name:
-            policy = Average_TD3.Average_TD3(state_dim, action_dim, max_action)
+            policy = Average_TD3.Average_TD3(state_dim, action_dim, max_action, num_steps=args.average_steps)
         elif 'DDPG' == args.policy_name:
             policy = DDPG.DDPG(state_dim, action_dim, max_action)
         elif 'SAC' == args.policy_name:
@@ -131,9 +131,15 @@ class Solver(object):
     def train(self):
         self.evaluations = [evaluate_policy(self.env, self.policy, self.args)]
 
-        self.log_dir = '{}/{}/{}_{}_seed_{}'.format(self.result_path, self.args.log_path,
-                                                    self.args.policy_name, self.args.env_name,
-                                                    self.args.seed)
+        if 'Average' in self.args.policy_name:
+            self.log_dir = '{}/{}/{}_{}_{}_seed_{}'.format(self.result_path, self.args.log_path,
+                                                        self.args.policy_name, self.args.average_steps, self.args.env_name,
+                                                        self.args.seed)
+        else:
+            self.log_dir = '{}/{}/{}_{}_seed_{}'.format(self.result_path, self.args.log_path,
+                                                        self.args.policy_name, self.args.env_name,
+                                                        self.args.seed)
+
         print("---------------------------------------")
         print("Settings: %s" % self.log_dir)
         print("---------------------------------------")
