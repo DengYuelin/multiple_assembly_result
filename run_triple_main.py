@@ -67,12 +67,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     env = ArmEnv()
-    policy_name_vec = ['Average_TD3']
-    average_steps = [5, 10, 20, 40]
+    policy_name_vec = ['TD3']
+
+    # average_steps = [5, 10, 20, 40]
+    # for policy_name in policy_name_vec:
+    #     for num_steps in average_steps:
+    #         args.average_steps = num_steps
+    #         for i in range(0, 5):
+    #             args.policy_name = policy_name
+    #             args.seed = i
+    #             main(env, args)
+
     for policy_name in policy_name_vec:
-        for num_steps in average_steps:
-            args.average_steps = num_steps
-            for i in range(0, 5):
-                args.policy_name = policy_name
-                args.seed = i
-                main(env, args)
+        args.policy_name = policy_name
+        for i in range(0, 2):
+            args.seed = i
+            main(env, args)

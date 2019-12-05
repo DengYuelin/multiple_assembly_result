@@ -38,8 +38,9 @@ if __name__ == "__main__":
     parser.add_argument("--save_video", default=False)
     parser.add_argument("--video_size", default=(600, 400))
 
+    parser.add_argument("--load_path", default='transfer/single_assembly')
     parser.add_argument("--save_all_policy", default=True)
-    parser.add_argument("--load_policy_idx", default='')
+    parser.add_argument("--load_policy_idx", default=1e5, type=int)
     parser.add_argument("--evaluate_Q_value", default=False)
     parser.add_argument("--reward_name", default='r_s')
 
