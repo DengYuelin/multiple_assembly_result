@@ -81,11 +81,9 @@ class ATD3_RNN(object):
 		self.max_action = max_action
 		self.it = 0
 
-
 	def select_action(self, state):
 		state = torch.FloatTensor(state.reshape(-1, state.shape[0], state.shape[1])).to(device)
 		return self.actor(state).cpu().data.numpy().flatten()
-
 
 	def cal_estimate_value(self, replay_buffer, eval_states=10000):
 		x, _, u, _, _ = replay_buffer.sample(eval_states)
@@ -95,7 +93,6 @@ class ATD3_RNN(object):
 		# target_Q = torch.mean(torch.min(Q1, Q2))
 		Q_val = 0.5 * (torch.mean(Q1) + torch.mean(Q2))
 		return Q_val.detach().cpu().numpy()
-
 
 	def train(self, replay_buffer, batch_size=100, discount=0.99, tau=0.005,
 			  policy_noise=0.2, noise_clip=0.5, policy_freq=2):

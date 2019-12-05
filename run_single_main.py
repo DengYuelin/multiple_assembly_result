@@ -30,17 +30,17 @@ def main(env, args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--policy_name", default='TD3')  # Policy name
-    parser.add_argument("--env_name", default="triple-peg-in-hole")  # OpenAI gym environment name
-    parser.add_argument("--log_path", default='transfer/triple_assembly')
+    parser.add_argument("--env_name", default="single-peg-in-hole")  # OpenAI gym environment name
+    parser.add_argument("--log_path", default='transfer/single_assembly')
 
     parser.add_argument("--eval_only", default=False)
     parser.add_argument("--render", default=False)
     parser.add_argument("--save_video", default=False)
     parser.add_argument("--video_size", default=(600, 400))
-
-    parser.add_argument("--load_path", default='transfer/single_assembly')
     parser.add_argument("--save_all_policy", default=True)
-    parser.add_argument("--load_policy_idx", default=1e5, type=int)
+
+    parser.add_argument("--load_path", default=False)
+    parser.add_argument("--load_policy_idx", default='')
     parser.add_argument("--evaluate_Q_value", default=False)
     parser.add_argument("--reward_name", default='r_s')
 
@@ -67,12 +67,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     env = ArmEnv()
-    policy_name_vec = ['Average_TD3']
-    average_steps = [5, 10, 20, 40]
+    policy_name_vec = ['TD3']
+
+    # average_steps = [5, 10, 20, 40]
+    # for policy_name in policy_name_vec:
+    #     for num_steps in average_steps:
+    #         args.average_steps = num_steps
+    #         for i in range(0, 5):
+    #             args.policy_name = policy_name
+    #             args.seed = i
+    #             main(env, args)
+
     for policy_name in policy_name_vec:
-        for num_steps in average_steps:
-            args.average_steps = num_steps
-            for i in range(0, 5):
-                args.policy_name = policy_name
-                args.seed = i
-                main(env, args)
+        args.policy_name = policy_name
+        for i in range(0, 2):
+            args.seed = i
+            main(env, args)

@@ -99,7 +99,7 @@ class Solver(object):
 
             if self.args.save_all_policy:
                 self.policy.save(
-                    self.file_name + str(int(int(self.total_timesteps/self.args.eval_freq)* self.args.eval_freq)),
+                    self.file_name + str(int(int(self.total_timesteps/self.args.eval_freq) * self.args.eval_freq)),
                     directory=self.log_dir)
 
             if self.args.evaluate_Q_value:
@@ -145,6 +145,9 @@ class Solver(object):
         print("---------------------------------------")
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
+
+        if self.args.load_path is not None:
+            self.policy.load(str(self.args.load_policy_idx), self.args.load_path)
 
         # TesnorboardX
         if self.args.evaluate_Q_value:
