@@ -29,9 +29,10 @@ def main(env, args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+
     parser.add_argument("--policy_name", default='TD3')  # Policy name
-    parser.add_argument("--env_name", default="triple-peg-in-hole")  # OpenAI gym environment name
-    parser.add_argument("--log_path", default='transfer/triple_assembly')
+    parser.add_argument("--env_name", default="dual-peg-in-hole")  # OpenAI gym environment name
+    parser.add_argument("--log_path", default='transfer/dual_assembly')
 
     parser.add_argument("--eval_only", default=False)
     parser.add_argument("--render", default=False)
@@ -47,8 +48,7 @@ if __name__ == "__main__":
     parser.add_argument("--seq_len", default=2, type=int)
     parser.add_argument("--ini_seed", default=1, type=int)  # Sets Gym, PyTorch and Numpy seeds
     parser.add_argument("--seed", default=10, type=int)  # Sets Gym, PyTorch and Numpy seeds
-    parser.add_argument("--start_timesteps", default=1e3,
-                        type=int)  # How many time steps purely random policy is run for
+    parser.add_argument("--start_timesteps", default=1e3, type=int)  # How many time steps purely random policy is run for
 
     parser.add_argument("--eval_freq", default=1e3, type=int)  # How often (time steps) we evaluate
     parser.add_argument("--max_timesteps", default=1e5, type=int)  # Max time steps to run environment for
