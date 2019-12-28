@@ -299,10 +299,10 @@ def learn(env,
             episode_rewards.append(cp.deepcopy(episode_reward))
             epoch_episode_times.append(cp.deepcopy(episode_time))
 
-            np.save('./data_fuzzy_test/episode_rewards', episode_rewards)
-            np.save('./data_fuzzy_test/episode_state', epoch_episode_states)
-            np.save('./data_fuzzy_test/episode_time', epoch_episode_times)
-            np.save('./data_fuzzy_test/episode_actions', epoch_episode_actions)
+            np.save('./data_fuzzy_test_new/episode_rewards', episode_rewards)
+            np.save('./data_fuzzy_test_new/episode_state', epoch_episode_states)
+            np.save('./data_fuzzy_test_new/episode_time', epoch_episode_times)
+            np.save('./data_fuzzy_test_new/episode_actions', epoch_episode_actions)
 
         if model_saved:
             if print_freq is not None:

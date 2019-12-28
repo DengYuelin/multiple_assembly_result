@@ -326,13 +326,13 @@ def plot_raw_data(path_1):
 
 def plot_compare(fuzzy_path, none_fuzzy_path):
 
-    # reward_fuzzy = np.load(fuzzy_path)
-    # reward_none_fuzzy = np.load(none_fuzz_path)
+    reward_fuzzy = np.load(fuzzy_path)
+    reward_none_fuzzy = np.load(none_fuzzy_path)
 
-    dfs = pd.read_excel(fuzzy_path)
-    reward_fuzzy = dfs.values.astype(np.float)[:, 0]
-    dfs = pd.read_excel(none_fuzzy_path)
-    reward_none_fuzzy = dfs.values.astype(np.float)[:, 0]
+    # dfs = pd.read_excel(fuzzy_path)
+    # reward_fuzzy = dfs.values.astype(np.float)[:, 0]
+    # dfs = pd.read_excel(none_fuzzy_path)
+    # reward_none_fuzzy = dfs.values.astype(np.float)[:, 0]
 
     plt.figure(figsize=(10, 8), dpi=300)
     plt.subplot(1, 1, 1)
@@ -507,68 +507,6 @@ def plot_3d_point(state_path_1, state_path_2):
     # ax_2.scatter(X_2[:, 0], X_2[:, 1], X_2[:, 2], c='b')
 
     plt.show()
-
-
-def plot_state_space(state_path_1, state_path_2):
-    state_data_1 = np.load(state_path_1, allow_pickle=True)
-    state_data_new = []
-    for i in range(state_data_1.shape[0]):
-        state_data_new.append(state_data_1[i])
-    X_1 = np.squeeze(np.array(state_data_new))
-
-    state_data_2 = np.load(state_path_2, allow_pickle=True)
-    state_data_new = []
-    for i in range(state_data_2.shape[0]):
-        state_data_new += state_data_2[i]
-    X_2 = np.array(state_data_new)
-
-    n_components = 2
-
-    plt.figure(figsize=(10, 8), dpi=300)
-    plt.subplot(1, 1, 1)
-    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
-    plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
-    plt.yticks(fontsize=34)
-    plt.xticks(fontsize=34)
-    plt.ylabel('state', fontsize=34)
-    plt.xlabel('state', fontsize=34)
-    # plt.legend(fontsize=30, loc='best')
-
-    '''t-SNE'''
-    tsne_1 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
-    Y_1 = tsne_1.fit_transform(X_1)
-    plt.scatter(Y_1[:, 0], Y_1[:, 1], c='r', cmap=plt.cm.Spectral)
-    plt.savefig('./results/figure/pdf/none_fuzzy_state_space.pdf')
-
-    plt.figure(figsize=(10, 8), dpi=300)
-    plt.subplot(1, 1, 1)
-    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
-    plt.yticks(fontsize=34)
-    plt.xticks(fontsize=34)
-    plt.ylabel('state', fontsize=34)
-    plt.xlabel('state', fontsize=34)
-    plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
-    tsne_2 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
-    Y_2 = tsne_2.fit_transform(X_2)
-
-    plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
-    # plt.legend(fontsize=30, loc='best')
-    plt.savefig('./results/figure/pdf/fuzzy_state_space.pdf')
-
-    # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
-    # ax.view_init(4, -72)
-
-    # ax = fig.add_subplot(2, 1, 2)
-    # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
-
-    # ax.xaxis.set_major_formatter(NullFormatter())  # 设置标签显示格式为空
-    # ax.yaxis.set_major_formatter(NullFormatter())
-    plt.show()
-
-
-def plot_state_action_space(state_path, action_path):
-    state_data = np.load(state_path)
-    action_data = np.load(action_path)
 
 
 def plot_error_line(t, acc_mean_mat, acc_std_mat=None, legend_vec=None,
@@ -901,20 +839,151 @@ def heat_map(force_path_1, force_path_2):
     plt.show()
 
 
+def plot_state_space(state_path_1, state_path_2):
+    state_data_1 = np.load(state_path_1, allow_pickle=True)
+    state_data_new = []
+    for i in range(state_data_1.shape[0]):
+        for j in range(len(state_data_1[i])):
+            state_data_new.append(state_data_1[i][j][0])
+            # state_data_new.append(state_data_1[i])
+    X_1 = np.array(state_data_new)
+
+    state_data_2 = np.load(state_path_2, allow_pickle=True)
+    state_data_new = []
+    for i in range(state_data_2.shape[0]):
+        for j in range(len(state_data_2[i])):
+            state_data_new.append(state_data_2[i][j][0])
+    X_2 = np.array(state_data_new)
+
+    n_components = 2
+
+    plt.figure(figsize=(10, 8), dpi=300)
+    plt.subplot(1, 1, 1)
+    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
+    plt.yticks(fontsize=34)
+    plt.xticks(fontsize=34)
+    plt.ylabel('state', fontsize=34)
+    plt.xlabel('state', fontsize=34)
+    # plt.legend(fontsize=30, loc='best')
+
+    '''t-SNE'''
+    tsne_1 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
+    Y_1 = tsne_1.fit_transform(X_1)
+    plt.scatter(Y_1[:, 0], Y_1[:, 1], c='r', cmap=plt.cm.Spectral)
+    plt.savefig('./results/figure/pdf/none_fuzzy_state_space.pdf')
+
+    # plt.figure(figsize=(10, 8), dpi=300)
+    # plt.subplot(1, 1, 1)
+    # plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    # plt.yticks(fontsize=34)
+    # plt.xticks(fontsize=34)
+    # plt.ylabel('state', fontsize=34)
+    # plt.xlabel('state', fontsize=34)
+    # plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
+    tsne_2 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
+    Y_2 = tsne_2.fit_transform(X_2)
+
+    plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
+    # plt.legend(fontsize=30, loc='best')
+    plt.savefig('./results/figure/pdf/fuzzy_state_space.pdf')
+
+    # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
+    # ax.view_init(4, -72)
+
+    # ax = fig.add_subplot(2, 1, 2)
+    # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
+
+    # ax.xaxis.set_major_formatter(NullFormatter())  # 设置标签显示格式为空
+    # ax.yaxis.set_major_formatter(NullFormatter())
+    plt.show()
+
+
+def plot_state_space_new(state_path_1, state_path_2):
+    state_data_1 = np.load(state_path_1, allow_pickle=True)
+    state_data_new = []
+    for i in range(state_data_1.shape[0]):
+        for j in range(len(state_data_1[i])):
+            state_data_new.append(state_data_1[i][j])
+            # state_data_new.append(state_data_1[i])
+    X_1 = np.array(state_data_new)
+
+    state_data_2 = np.load(state_path_2, allow_pickle=True)
+    state_data_new = []
+    for i in range(state_data_2.shape[0]):
+        for j in range(len(state_data_2[i])):
+            state_data_new.append(state_data_2[i][j])
+    X_2 = np.array(state_data_new)
+
+    n_components = 2
+
+    plt.figure(figsize=(10, 8), dpi=300)
+    plt.subplot(1, 1, 1)
+    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
+    plt.yticks(fontsize=34)
+    plt.xticks(fontsize=34)
+    plt.ylabel('state', fontsize=34)
+    plt.xlabel('state', fontsize=34)
+    # plt.legend(fontsize=30, loc='best')
+
+    '''t-SNE'''
+    tsne_1 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
+    Y_1 = tsne_1.fit_transform(X_1)
+    plt.scatter(Y_1[:, 0], Y_1[:, 1], c='r', cmap=plt.cm.Spectral)
+    plt.savefig('./results/figure/pdf/none_fuzzy_state_space.pdf')
+
+    # plt.figure(figsize=(10, 8), dpi=300)
+    # plt.subplot(1, 1, 1)
+    # plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    # plt.yticks(fontsize=34)
+    # plt.xticks(fontsize=34)
+    # plt.ylabel('state', fontsize=34)
+    # plt.xlabel('state', fontsize=34)
+    # plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
+    tsne_2 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
+    Y_2 = tsne_2.fit_transform(X_2)
+
+    plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
+    # plt.legend(fontsize=30, loc='best')
+    plt.savefig('./results/figure/pdf/fuzzy_state_space.pdf')
+
+    # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
+    # ax.view_init(4, -72)
+
+    # ax = fig.add_subplot(2, 1, 2)
+    # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
+
+    # ax.xaxis.set_major_formatter(NullFormatter())  # 设置标签显示格式为空
+    # ax.yaxis.set_major_formatter(NullFormatter())
+    plt.show()
+
+
+def plot_state_action_space(state_path, action_path):
+    state_data = np.load(state_path)
+    action_data = np.load(action_path)
+
+
 # print('------Fig: test reward------')
 # plot_roboschool_test_reward()
 
 
 # ----------------- plot search path ----------------------
 # plot_3d_point('./results/episode_state_fuzzy_noise_final.npy', './results/episode_state_none_fuzzy_noise_final.npy')
-plot_state_space('./results/transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy', './results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy')
+# plot_state_space('./results/transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy',
+#                  './results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy')
 
+plot_state_space_new('./results/data_test/episode_state.npy',
+                     './results/data_fuzzy_test/episode_state.npy')
 
 # data = np.load('./results/transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/buffer_data.npy', allow_pickle=True)
 # print(data.shape)
 
 # plot_compare('./results/transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_reward.xls',
              # './results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_reward.xls')
+
+# plot_compare('./results/data_fuzzy_test/episode_rewards.npy',
+                 # './results/data_test/episode_rewards.npy')
 
 # data = np.load('./results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy', allow_pickle=True)
 # print(data.shape)

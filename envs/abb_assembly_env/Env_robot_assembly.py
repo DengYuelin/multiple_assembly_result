@@ -77,9 +77,11 @@ class env_assembly_search(object):
                                        shape=(self.action_dim,), dtype=np.float32)
 
         """ fuzzy parameters range """
-        self.fc = fuzzy_control(low_output=np.array([0., 0., 0., 0., 0., 0.]),
-                                high_output=np.array([0.03, 0.03, 0.004, 0.03, 0.03, 0.03]))
+        # self.fc = fuzzy_control(low_output=np.array([0., 0., 0., 0., 0., 0.]),
+                                # high_output=np.array([0.03, 0.03, 0.004, 0.03, 0.03, 0.03]))
 
+        self.fc = fuzzy_control(low_output=np.array([0., 0., 0., 0., 0., 0.]),
+                                high_output=np.array([0.02, 0.02, 0.004, 0.02, 0.02, 0.02]))
         """ initial position and orientation """
         # self.set_initial_pos = np.array([1453.2509, 73.2577, 1000])
         # self.set_initial_euler = np.array([179.8938, 0.9185, 1.0311])
