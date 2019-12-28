@@ -5,10 +5,10 @@ project_path = './'
 sys.path.append("/usr/local/webots/lib")
 sys.path.insert(0, project_path + 'pytorch')
 print(sys.path)
-from envs.env import ArmEnv
+from envs import ArmEnv
 import argparse
 import numpy as np
-from code.pytorch.utils.solver import utils, Solver
+from code.pytorch.utils.solver import Solver
 
 
 def test_env(env):

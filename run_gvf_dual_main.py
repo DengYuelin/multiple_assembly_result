@@ -5,10 +5,15 @@ project_path = './'
 sys.path.append("/usr/local/webots/lib")
 sys.path.insert(0, project_path + 'pytorch')
 print(sys.path)
-from envs.env import ArmEnv
+
+from envs.abb_assembly_env.Env_robot_assembly import env_assembly_search
+from envs.webots_assembly_env.simulation_env import ArmEnv
+
 import argparse
 import numpy as np
-from code.pytorch.utils.solver import utils, Solver
+
+# using pytorch code base
+from code.pytorch.utils.solver import Solver
 
 
 def test_env(env):
@@ -32,7 +37,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--policy_name", default='TD3')  # Policy name
     parser.add_argument("--env_name", default="dual-peg-in-hole")  # OpenAI gym environment name
-    parser.add_argument("--log_path", default='transfer/dual_assembly')
+    parser.add_argument("--log_path", default='gvf_predict/assembly_search')
 
     parser.add_argument("--eval_only", default=False)
     parser.add_argument("--render", default=False)
@@ -66,7 +71,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    env = ArmEnv()
+    env = env_assembly_search()
     policy_name_vec = ['TD3']
 
     # average_steps = [5, 10, 20, 40]

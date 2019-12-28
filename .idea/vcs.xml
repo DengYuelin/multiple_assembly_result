@@ -2,6 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/code" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/code/pytorch" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/code/pytorch/android/libs/fbjni" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/code/pytorch/third_party/FP16" vcs="Git" />
