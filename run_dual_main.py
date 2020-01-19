@@ -32,7 +32,7 @@ def main(env, args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--policy_name", default='TD3')  # Policy name
-    parser.add_argument("--env_name", default="dual-peg-in-hole")  # OpenAI gym environment name
+    parser.add_argument("--env_name", default="")  # OpenAI gym environment name
     parser.add_argument("--log_path", default='transfer/dual_assembly_VPB_new')
 
     parser.add_argument("--eval_only", default=True)

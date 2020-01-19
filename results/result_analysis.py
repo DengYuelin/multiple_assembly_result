@@ -6,6 +6,7 @@ Created on Thu Jul  4 10:29:32 2019
 """
 from matplotlib import cm
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 # plt.rcParams['pdf.fonttype'] = 42
 # plt.rcParams['font.sans-serif']=['SimHei']
 # plt.rcParams['axes.unicode_minus']=False
@@ -21,7 +22,6 @@ import sys
 from code.pytorch.utils.utils import *
 from scipy import stats, signal
 from time import time
-import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter
 from sklearn import manifold, datasets
 
@@ -35,6 +35,10 @@ COLORS = ['blue', 'green', 'red', 'cyan', 'magenta', 'yellow', 'black', 'purple'
         'darkgreen', 'tan', 'salmon', 'gold', 'lightpurple', 'darkred', 'darkblue']
 """ ================================================================================= """
 
+FONT_SIZE = 20
+# plt.rcParams['font.family'] = 'Times New Roman'
+plt.rcParams['font.size'] = 20 # 16
+
 
 def plot_force_and_moment(path_2, path_3):
 
@@ -47,7 +51,7 @@ def plot_force_and_moment(path_2, path_3):
     plt.subplots_adjust(left=0.08, bottom=0.10, right=0.98, top=0.98, wspace=0.23, hspace=0.23)
 
     plt.subplot(1, 2, 1)
-    # plt.title("Forces and Moments", fontsize=28)
+    # plt.title("Forces and Moments", fontsize=FONT_SIZE)
     plt.plot(V_force[:, : 6], linewidth=2.75)
     plt.xlabel("Steps", fontsize=font_size_new)
     plt.ylabel("Forces(N) / Moments(10XNm)", fontsize=font_size_new)
@@ -57,7 +61,7 @@ def plot_force_and_moment(path_2, path_3):
     plt.grid()
 
     plt.subplot(1, 2, 2)
-    # plt.title("Search Result of State", fontsize=28)
+    # plt.title("Search Result of State", fontsize=FONT_SIZE)
     # plt.plot(V_state[:, 6:] - [539.8759, -39.7005, 193, 179.8834, 1.3056,  -5.4893])
     plt.plot(V_state[:, 6:] - V_state[0, 6:], linewidth=2.75)
     plt.xlabel("Steps", fontsize=font_size_new)
@@ -94,7 +98,7 @@ def plot_six_action(path_2, path_3):
     plt.grid()
 
     plt.subplot(1, 2, 2)
-    # plt.title("Search Result of State", fontsize=28)
+    # plt.title("Search Result of State", fontsize=FONT_SIZE)
     # plt.plot(V_state[:, 6:] - [539.8759, -39.7005, 193, 179.8834, 1.3056,  -5.4893])
     plt.plot(V_state[:, 6:] - V_state[0, 6:], linewidth=2.75)
     plt.xlabel("Steps", fontsize=font_size_new)
@@ -324,7 +328,7 @@ def plot_raw_data(path_1):
     plt.savefig('raw_data_random_policy1.jpg')
 
 
-def plot_compare(fuzzy_path, none_fuzzy_path):
+def plot_compare(fuzzy_path, none_fuzzy_path, figure_path):
 
     reward_fuzzy = np.load(fuzzy_path)
     reward_none_fuzzy = np.load(none_fuzzy_path)
@@ -350,15 +354,15 @@ def plot_compare(fuzzy_path, none_fuzzy_path):
         plt.xlabel('训练回合数', fontsize=34)
     else:
         plt.plot(np.array(reward_fuzzy[1:223]), color='b',
-                 linewidth=4., label='Typical DDPG')
+                 linewidth=5., label='Typical DQN')
         plt.plot(np.array(reward_none_fuzzy[1:223]), color='r',
-                 linewidth=4., label='VPB—DDPG')
+                 linewidth=5., label='FLDVTSP—DQN')
         plt.ylabel('Episode Reward', fontsize=34)
         plt.xlabel('Episodes', fontsize=34)
 
     plt.yticks(fontsize=34)
     plt.xticks(fontsize=34)
-    # plt.ylabel('每回合装配步数', fontsize=28)
+    # plt.ylabel('每回合装配步数', fontsize=FONT_SIZE)
     plt.legend(fontsize=30, loc='upper left')
 
     # plot_reward('./episode_rewards_100.npy')
@@ -369,9 +373,8 @@ def plot_compare(fuzzy_path, none_fuzzy_path):
     # plt.ylabel('Episode Reward', fontsize=20)
     # plt.xlabel('Episodes', fontsize=20)
 
-    plt.savefig('./results/figure/pdf/ddpg_test_episode_reward.pdf')
-    plt.savefig('./results/figure/jpg/ddpg_test_episode_reward.jpg')
-
+    plt.savefig(figure_path)
+    # plt.savefig('./results/figure/jpg/dqn_test_episode_reward.jpg')
     # plt.savefig('./figure/pdf/chinese_ddpg_episode_step.pdf')
     # plt.savefig('./figure/jpg/chinese_ddpg_episode_step.jpg')
 
@@ -434,8 +437,7 @@ def chinese_plot_compare_raw_data(path1, path2):
     # plt.show()
 
 
-def plot_comparision_hist(fuzzy_path, none_fuzzy_path):
-
+def plot_comparision_hist(fuzzy_path, none_fuzzy_path, figure_path):
     # fuzzy_data = np.load(fuzzy_path)
     # none_fuzzy_data = np.load(none_fuzzy_path)
 
@@ -444,8 +446,8 @@ def plot_comparision_hist(fuzzy_path, none_fuzzy_path):
     dfs = pd.read_excel(none_fuzzy_path)
     none_fuzzy_data = dfs.values.astype(np.float)[:, 0]
 
-    print(len(fuzzy_data))
-    print(len(none_fuzzy_data))
+    # print(len(fuzzy_data))
+    # print(len(none_fuzzy_data))
 
     fuzzy_steps = fuzzy_data
     none_fuzzy_steps = none_fuzzy_data
@@ -460,8 +462,8 @@ def plot_comparision_hist(fuzzy_path, none_fuzzy_path):
     plt.subplot(1, 1, 1)
     plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
     plt.subplots_adjust(left=0.13, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
-    plt.hist(none_fuzzy_steps[:20], bins=20, histtype="stepfilled", label='VPB-DDPG')
-    plt.hist(fuzzy_steps[:20], bins=20, histtype="stepfilled", label='Typical DDPG')
+    plt.hist(fuzzy_steps[:20], bins=20, histtype="stepfilled", label='Typical DDPG', color='b')
+    plt.hist(none_fuzzy_steps[:20], bins=20, histtype="stepfilled", label='FLDVTSP-DDPG', color='r')
 
     plt.yticks(fontsize=34)
     plt.xticks(fontsize=34)
@@ -470,9 +472,8 @@ def plot_comparision_hist(fuzzy_path, none_fuzzy_path):
     plt.grid(axis="y")
     plt.legend(fontsize=30, loc='best')
 
-    plt.savefig('./results/figure/pdf/ddpg_test_episode_time.pdf')
-    plt.savefig('./results/figure/jpg/ddpg_test_episode_time.jpg')
-
+    plt.savefig(figure_path)
+    # plt.savefig('./figure/jpg/dqn_test_episode_time.jpg')
     plt.show()
 
 
@@ -558,114 +559,8 @@ def write_to_existing_table(data, file_name, sheet_name='label'):
             df_sheet.to_excel(writer, sheet_name=ws_name)
 
 
-def plot_Q_vals(reward_name_idx = None, policy_name_vec=None, result_path ='runs/ATD3_walker2d',
-                       env_name = 'RoboschoolWalker2d'):
-    if reward_name_idx is None:
-        reward_name_idx = [0, 9, 9, 9]
-    if policy_name_vec is None:
-        policy_name_vec = ['TD3', 'TD3', 'ATD3', 'ATD3_RNN']
-    reward_name_vec = ['r_d', 'r_s', 'r_n', 'r_lhs', 'r_cg', 'r_gs', 'r_fr', 'r_f', 'r_gv', 'r_po']
-    Q_val_mat = None
-    legend_vec = []
-    for r in range(len(policy_name_vec)):
-        reward_str = connect_str_list(reward_name_vec[:reward_name_idx[r]+1])
-        legend_vec.append(policy_name_vec[r])
-        legend_vec.append('True ' + policy_name_vec[r])
-        # file_names_list = [glob.glob('{}/*_{}_{}*{}_train-tag*.csv'.format(
-        #     result_path, policy_name_vec[r], env_name, reward_str)),
-        #     glob.glob('{}/*_{}_{}*{}-tag*.csv'.format(
-        #     result_path, policy_name_vec[r], env_name, reward_str))]
-        file_names_list = [glob.glob('{}/*_{}_{}*/estimate_Q_vals.xls'.format(
-            result_path, policy_name_vec[r], env_name)),
-            glob.glob('{}/*_{}_{}*/true_Q_vals.xls'.format(
-            result_path, policy_name_vec[r], env_name))]
-        for i in range(len(file_names_list)):
-        # for file_name_vec in file_names_list:
-            file_name_vec = file_names_list[i]
-            print(file_name_vec)
-            for c in range(len(file_name_vec)):
-                file_name = file_name_vec[c]
-                dfs = pd.read_excel(file_name)
-                Q_vals = dfs.values.astype(np.float)[:, 0]
-                # Q_vals = read_csv_vec(file_name)
-                if Q_val_mat is None:
-                    Q_val_mat = np.zeros((len(reward_name_idx) * 2, len(file_name_vec), 271))
-                if Q_vals.shape[0] < Q_val_mat.shape[-1]:
-                    Q_vals = np.interp(np.arange(271), np.arange(271, step = 10), Q_vals[:28])
-                Q_val_mat[2 * r + i, c, :] = Q_vals[:271]
-
-    if Q_val_mat is not None:
-        fig = plt.figure(figsize=(3.5, 2.5))
-        # plt.tight_layout()
-        plt.rcParams.update({'font.size': 7, 'font.serif': 'Times New Roman'})
-        plt.subplot(1, 2, 1)
-        time_step = Q_val_mat.shape[-1] - 1
-        for i in range(Q_val_mat.shape[0]):
-            if 0 == i % 2:
-                t = np.linspace(0, 0 + 0.01 * time_step, time_step + 1)
-                plot_acc_mat(Q_val_mat[[i]],
-                             None, env_name, smooth_weight=0.0, plot_std=True,
-                             fig_name=None, y_label='Q value', fig = fig, t = t, marker_size = 0, init_idx=i)
-            else:
-                t = np.linspace(0, 0 + 0.01 * time_step, time_step / 10 + 1)
-                plot_acc_mat(Q_val_mat[[i], :, ::10],
-                             None, env_name, smooth_weight=0.0, plot_std=True,
-                             fig_name=None, y_label='Q value', fig=fig, t=t, init_idx=i, marker_size = 2)
-        plt.xlabel(r'Time steps ($1 \times 10^{5}$)')
-        plt.yticks([0, 50, 100])
-        plt.subplot(1, 2, 2)
-        Q_val_mat = Q_val_mat[:, :, 90:]
-        time_step = Q_val_mat.shape[-1] - 1
-        t = np.linspace(1, 1 + 0.01 * time_step, time_step + 1)
-        # error_Q_val_mat = (Q_val_mat[[0, 2]] - Q_val_mat[[1, 3]]) / Q_val_mat[[1, 3]]
-        error_Q_val_mat = (Q_val_mat[0:6:2] - Q_val_mat[1:6:2]) / np.mean(Q_val_mat[1:6:2],
-                                                                          axis = 1, keepdims=True)
-        print('Mean absolute normalized error of Q value, TD3: {}, ATD3: {}, ATD3_RNN: {}'.format(
-            np.mean(np.abs(error_Q_val_mat[0, :, -50:])), np.mean(np.abs(error_Q_val_mat[1, :, -50:])),
-            np.mean(np.abs(error_Q_val_mat[2, :, -50:]))))
-        plot_acc_mat(error_Q_val_mat,
-                     None, env_name, smooth_weight=0.0, plot_std=True,
-                     fig_name=None, y_label='Error of Q value / True Q value',
-                     fig = fig, t = t, init_idx=0, idx_step=2, marker_size = 0)
-        plt.xlabel(r'Time steps ($1 \times 10^{5}$)')
-        plt.yticks([0, 1, 2])
-        plt.xticks([1.0, 1.5, 2.0, 2.5])
-        legend = fig.legend(legend_vec,
-                            loc='lower center', ncol=3, bbox_to_anchor=(0.50, 0.90),
-                            frameon=False)
-        fig.tight_layout()
-        plt.savefig('images/{}_{}.pdf'.format(env_name, 'Q_value'), bbox_inches='tight', pad_inches=0.05)
-        plt.show()
-
-
-def plot_error_bar(x_vec, y_mat, x_tick_vec = None):
-    mean_vec = np.mean(y_mat, axis = -1)
-    std_vec = np.std(y_mat, axis = -1)
-    len_vec = len(x_vec)
-    fig = plt.figure(figsize=(3.5, 1))
-    plt.tight_layout()
-    plt.rcParams.update({'font.size': 7, 'font.serif': 'Times New Roman'})
-
-    plt.errorbar(x_vec, mean_vec, yerr = std_vec, fmt='-', elinewidth= 1,
-                 solid_capstyle='projecting', capsize= 3, color = 'black')
-    plt.ylabel('Test reward')
-    if x_tick_vec is not None:
-        plt.xticks(np.arange(len(x_tick_vec)), x_tick_vec)
-    plt.savefig('images/ablation_reward.pdf', bbox_inches='tight')
-    plt.show()
-
-
-def connect_str_list(str_list):
-    if 0 >= len(str_list):
-        return ''
-    str_out = str_list[0]
-    for i in range(1, len(str_list)):
-        str_out = str_out + '_' + str_list[i]
-    return str_out
-
-
-def plot_acc_mat(acc_mat, legend_vec, env_name, plot_std = True, smooth_weight = 0.8, eval_freq = 0.05,
-                 t=None, fig=None, fig_name = None, y_label = 'Test reward',
+def plot_acc_mat(acc_mat, legend_vec, env_name, plot_std=True, smooth_weight = 0.8, eval_freq = 0.05,
+                 t=None, fig=None, fig_name = None, y_label='Test reward',
                  init_idx=0, idx_step=1, marker_size=2):
     # print(legend_vec)
     for r in range(acc_mat.shape[0]):
@@ -698,7 +593,7 @@ def plot_acc_mat(acc_mat, legend_vec, env_name, plot_std = True, smooth_weight =
 
 
 def plot_reward_curves(policy_name_vec=None, result_path ='runs/ATD3_walker2d',
-                       env_name = 'RoboschoolWalker2d', fig = None, fig_name='test_reward',
+                       env_name='RoboschoolWalker2d', fig = None, fig_name='test_reward',
                        smooth_weight=0.8, eval_freq = 0.05):
     if policy_name_vec is None:
         policy_name_vec = ['TD3', 'TD3', 'ATD3', 'ATD3_RNN']
@@ -771,26 +666,6 @@ def plot_roboschool_test_reward():
     plt.show()
 
 
-def calc_TD_reward(reward_Q):
-    reward_Q_TD = np.zeros(reward_Q.shape)
-    reward_Q_TD[:, 0] = reward_Q[:, 0]
-    for r in range(reward_Q.shape[0]-1):
-        reward_Q_TD[r, 1:3] = reward_Q[r, 1:3] - 0.99 * np.min(reward_Q[r+1, 1:3])
-    return reward_Q_TD
-
-
-def calc_expected_reward(reward_Q):
-    reward = np.copy(reward_Q[:, 0])
-    r = 0
-    # for r in range(reward_Q.shape[0]-1):
-    for c in range(r+1, reward_Q.shape[0]):
-        reward[r] += 0.99 ** (c-r) * reward[c]
-        # reward[r] += np.min(0.99 * reward_Q[r + 1, 1:3])
-    init_rewar_Q = reward_Q[[0],:]
-    init_rewar_Q[0, 0] = reward[0]
-    return init_rewar_Q
-
-
 def smooth(scalars, weight=0.9):
     # Exponential moving average,
     # Weight between 0 and 1
@@ -803,48 +678,12 @@ def smooth(scalars, weight=0.9):
     return np.asarray(smoothed)
 
 
-def heat_map(force_path_1, force_path_2):
-    force_data_1 = np.load(force_path_1, allow_pickle=True)
-
-    v_forces = []
-    for i in range(len(force_data_1)):
-        single_force = []
-        for j in range(40):
-            print('length', len(force_data_1[i]))
-            single_force.append(force_data_1[i][j][0][:1])
-
-        v_forces.append(np.squeeze(np.array(single_force)))
-
-    force_data_2 = np.load(force_path_2, allow_pickle=True)
-    # state_data_new = []
-    # for i in range(state_data_2.shape[0]):
-    #     state_data_new += state_data_2[i]
-    # X_2 = np.array(state_data_new)
-
-    plt.figure(figsize=(10, 8), dpi=300)
-    plt.subplot(1, 1, 1)
-    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
-    plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
-    print('v_forces', np.array(v_forces))
-    im = plt.imshow(np.array(v_forces), cmap=plt.cm.hot_r)
-
-    # 增加右侧的颜色刻度条
-    plt.colorbar(im)
-    plt.yticks(fontsize=34)
-    plt.xticks(fontsize=34)
-    plt.ylabel('N', fontsize=34)
-    plt.xlabel('$F_x$', fontsize=34)
-
-    plt.savefig('./results/figure/pdf/fuzzy_force.pdf')
-    plt.show()
-
-
-def plot_state_space(state_path_1, state_path_2):
+def plot_state_space(state_path_1, state_path_2, figure_path):
     state_data_1 = np.load(state_path_1, allow_pickle=True)
     state_data_new = []
     for i in range(state_data_1.shape[0]):
         for j in range(len(state_data_1[i])):
-            state_data_new.append(state_data_1[i][j][0])
+            state_data_new.append(state_data_1[i][j][1])
             # state_data_new.append(state_data_1[i])
     X_1 = np.array(state_data_new)
 
@@ -852,7 +691,7 @@ def plot_state_space(state_path_1, state_path_2):
     state_data_new = []
     for i in range(state_data_2.shape[0]):
         for j in range(len(state_data_2[i])):
-            state_data_new.append(state_data_2[i][j][0])
+            state_data_new.append(state_data_2[i][j][1])
     X_2 = np.array(state_data_new)
 
     n_components = 2
@@ -863,15 +702,18 @@ def plot_state_space(state_path_1, state_path_2):
     plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
     plt.yticks(fontsize=34)
     plt.xticks(fontsize=34)
-    plt.ylabel('state', fontsize=34)
-    plt.xlabel('state', fontsize=34)
-    # plt.legend(fontsize=30, loc='best')
+    # plt.ylabel('state', fontsize=34)
+    # plt.xlabel('state', fontsize=34)
 
-    '''t-SNE'''
+    """ T-SNE """
+    tsne_2 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
+    Y_2 = tsne_2.fit_transform(X_2)
+    plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral, label='Typical DDPG')
+
     tsne_1 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
     Y_1 = tsne_1.fit_transform(X_1)
-    plt.scatter(Y_1[:, 0], Y_1[:, 1], c='r', cmap=plt.cm.Spectral)
-    plt.savefig('./results/figure/pdf/none_fuzzy_state_space.pdf')
+    plt.scatter(Y_1[:, 0], Y_1[:, 1], c='r', cmap=plt.cm.Spectral, label='FLDVTSP-DDPG')
+    # plt.savefig('./results/figure/pdf/none_fuzzy_state_space.pdf')
 
     # plt.figure(figsize=(10, 8), dpi=300)
     # plt.subplot(1, 1, 1)
@@ -881,12 +723,8 @@ def plot_state_space(state_path_1, state_path_2):
     # plt.ylabel('state', fontsize=34)
     # plt.xlabel('state', fontsize=34)
     # plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
-    tsne_2 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
-    Y_2 = tsne_2.fit_transform(X_2)
-
-    plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
-    # plt.legend(fontsize=30, loc='best')
-    plt.savefig('./results/figure/pdf/fuzzy_state_space.pdf')
+    plt.legend(fontsize=30, loc='upper right')
+    plt.savefig(figure_path)
 
     # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
     # ax.view_init(4, -72)
@@ -899,20 +737,23 @@ def plot_state_space(state_path_1, state_path_2):
     plt.show()
 
 
-def plot_state_space_new(state_path_1, state_path_2):
+def plot_state_space_new(state_path_1, state_path_2, figure_path):
+
     state_data_1 = np.load(state_path_1, allow_pickle=True)
-    state_data_new = []
-    for i in range(state_data_1.shape[0]):
-        for j in range(len(state_data_1[i])):
-            state_data_new.append(state_data_1[i][j])
-            # state_data_new.append(state_data_1[i])
+    state_data_new = state_data_1
+    # state_data_new = []
+    # for i in range(state_data_1.shape[0]):
+    #     for j in range(len(state_data_1[i])):
+    #         state_data_new.append(state_data_1[i][j])
+    #         # state_data_new.append(state_data_1[i])
     X_1 = np.array(state_data_new)
 
     state_data_2 = np.load(state_path_2, allow_pickle=True)
-    state_data_new = []
-    for i in range(state_data_2.shape[0]):
-        for j in range(len(state_data_2[i])):
-            state_data_new.append(state_data_2[i][j])
+    state_data_new = state_data_2
+    # state_data_new = []
+    # for i in range(state_data_2.shape[0]):
+    #     for j in range(len(state_data_2[i])):
+    #         state_data_new.append(state_data_2[i][j])
     X_2 = np.array(state_data_new)
 
     n_components = 2
@@ -923,15 +764,13 @@ def plot_state_space_new(state_path_1, state_path_2):
     plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
     plt.yticks(fontsize=34)
     plt.xticks(fontsize=34)
-    plt.ylabel('state', fontsize=34)
-    plt.xlabel('state', fontsize=34)
+
+    # plt.ylabel('state', fontsize=34)
+    # plt.xlabel('state', fontsize=34)
     # plt.legend(fontsize=30, loc='best')
 
     '''t-SNE'''
-    tsne_1 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
-    Y_1 = tsne_1.fit_transform(X_1)
-    plt.scatter(Y_1[:, 0], Y_1[:, 1], c='r', cmap=plt.cm.Spectral)
-    plt.savefig('./results/figure/pdf/none_fuzzy_state_space.pdf')
+    # plt.savefig('./results/figure/pdf/dqn_state_space.pdf')
 
     # plt.figure(figsize=(10, 8), dpi=300)
     # plt.subplot(1, 1, 1)
@@ -943,10 +782,14 @@ def plot_state_space_new(state_path_1, state_path_2):
     # plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
     tsne_2 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
     Y_2 = tsne_2.fit_transform(X_2)
+    plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral, label='Typical DQN')
 
-    plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
-    # plt.legend(fontsize=30, loc='best')
-    plt.savefig('./results/figure/pdf/fuzzy_state_space.pdf')
+    tsne_1 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
+    Y_1 = tsne_1.fit_transform(X_1)
+    plt.scatter(Y_1[:, 0], Y_1[:, 1], c='r', cmap=plt.cm.Spectral, label='FLDVTSP-DQN')
+
+    plt.legend(fontsize=30, loc='upper right')
+    plt.savefig(figure_path)
 
     # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
     # ax.view_init(4, -72)
@@ -960,44 +803,365 @@ def plot_state_space_new(state_path_1, state_path_2):
 
 
 def plot_state_action_space(state_path, action_path):
-    state_data = np.load(state_path)
-    action_data = np.load(action_path)
+    state_data = np.load(state_path, allow_pickle=True)
+    action_data = np.load(action_path, allow_pickle=True)
+
+    state_data_new = []
+    for i in range(state_data.shape[0]):
+        for j in range(len(state_data[i])):
+            state_data_new.append(state_data[i][j])
+    X_1 = np.array(state_data_new)
+
+    state_data_new = []
+    for i in range(action_data.shape[0]):
+        for j in range(len(action_data[i])):
+            state_data_new.append(action_data[i][j])
+    X_2 = np.array(state_data_new)
+
+    n_components = 2
+
+    plt.figure(figsize=(10, 8), dpi=300)
+    plt.subplot(1, 1, 1)
+    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
+    plt.yticks(fontsize=34)
+    plt.xticks(fontsize=34)
+    plt.ylabel('state', fontsize=34)
+    plt.xlabel('state', fontsize=34)
+    # plt.legend(fontsize=30, loc='best')
+
+    '''t-SNE'''
+    tsne_1 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
+    Y_1 = tsne_1.fit_transform(X_1)
+    plt.scatter(Y_1[:, 0], Y_1[:, 1], c='r', cmap=plt.cm.Spectral, label='VPB-DQN')
+    # plt.savefig('./results/figure/pdf/dqn_state_space.pdf')
+
+    # plt.figure(figsize=(10, 8), dpi=300)
+    # plt.subplot(1, 1, 1)
+    # plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    # plt.yticks(fontsize=34)
+    # plt.xticks(fontsize=34)
+    # plt.ylabel('state', fontsize=34)
+    # plt.xlabel('state', fontsize=34)
+    # plt.subplots_adjust(left=0.165, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
+    tsne_2 = manifold.TSNE(n_components=n_components, init='pca', random_state=0)
+    Y_2 = tsne_2.fit_transform(X_2)
+
+    plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral, label='Typical DQN')
+    plt.legend(fontsize=30, loc='upper right')
+
+    plt.savefig('./results/figure/pdf/dqn_state_action_space.pdf')
+
+    # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
+    # ax.view_init(4, -72)
+
+    # ax = fig.add_subplot(2, 1, 2)
+    # plt.scatter(Y_2[:, 0], Y_2[:, 1], c='b', cmap=plt.cm.Spectral)
+
+    # ax.xaxis.set_major_formatter(NullFormatter())  # 设置标签显示格式为空
+    # ax.yaxis.set_major_formatter(NullFormatter())
+    plt.show()
 
 
-# print('------Fig: test reward------')
-# plot_roboschool_test_reward()
+def plot_3D_path(path_0, path_1, name_0):
+
+    force_data_1 = np.load(path_0, allow_pickle=True)
+    force_data_2 = np.load(path_1, allow_pickle=True)
+
+    fig = plt.figure(figsize=(10, 8), dpi=300)
+    ax_1 = fig.add_subplot(111, projection='3d')
+
+    v_forces_fx = []
+    v_forces_fy = []
+    v_forces_fz = []
+    for i in range(len(force_data_1)):
+        single_force_fx = []
+        single_force_fy = []
+        single_force_fz = []
+
+        for j in range(len(force_data_1[i])):
+
+            single_force_fx.append(force_data_1[i][j][6:7])
+            single_force_fy.append(force_data_1[i][j][7:8])
+            single_force_fz.append(force_data_1[i][j][8:9])
+
+        v_forces_fx.append(np.squeeze(np.array(single_force_fx)))
+        v_forces_fy.append(np.squeeze(np.array(single_force_fy)))
+        v_forces_fz.append(np.squeeze(np.array(single_force_fz)))
+
+    v_forces_mx = []
+    v_forces_my = []
+    v_forces_mz = []
+    for i in range(len(force_data_2)):
+        single_force_mx = []
+        single_force_my = []
+        single_force_mz = []
+
+        for j in range(len(force_data_2[i])):
+            single_force_mx.append(force_data_2[i][j][6:7])
+            single_force_my.append(force_data_2[i][j][7:8])
+            single_force_mz.append(force_data_2[i][j][8:9])
+
+        v_forces_mx.append(np.squeeze(np.array(single_force_mx)))
+        v_forces_my.append(np.squeeze(np.array(single_force_my)))
+        v_forces_mz.append(np.squeeze(np.array(single_force_mz)))
+
+    ax_1.plot3D(v_forces_fx[0], v_forces_fy[0], v_forces_fz[0], 'blue', label='Typical DQN')
+    ax_1.plot3D(v_forces_mx[0], v_forces_my[0], v_forces_mz[0], 'red', label='FLDVTSP-DQN')
+    for i in range(1, len(force_data_1)):
+        ax_1.plot3D(v_forces_fx[i], v_forces_fy[i], v_forces_fz[i], 'red')
+        ax_1.plot3D(v_forces_mx[i], v_forces_my[i], v_forces_mz[i], 'blue')
+
+    plt.yticks([-40.5, -40.0, -39.5, -39.0, -38.5, -38.0], fontsize=FONT_SIZE)
+    plt.xticks(fontsize=FONT_SIZE)
+    plt.legend(fontsize=FONT_SIZE)
+    ax_1.set_ylabel('$Y(mm)$', fontsize=FONT_SIZE, labelpad=FONT_SIZE)
+    ax_1.set_xlabel('$X(mm)$', fontsize=FONT_SIZE, labelpad=FONT_SIZE)
+    ax_1.set_zlabel('$Z(mm)$', fontsize=FONT_SIZE, labelpad=FONT_SIZE)
+
+    plt.subplots_adjust(left=0.13, bottom=0.13, right=0.98, top=0.98)
+    plt.tight_layout()
+
+    plt.savefig(name_0)
+    plt.show()
 
 
-# ----------------- plot search path ----------------------
+def plot_3D_path_new(path_0, path_1, name_0):
+
+    force_data_1 = np.load(path_0, allow_pickle=True)
+    force_data_2 = np.load(path_1, allow_pickle=True)
+
+    fig = plt.figure(figsize=(10, 8), dpi=300)
+    ax_1 = fig.add_subplot(111, projection='3d')
+
+    v_forces_fx = []
+    v_forces_fy = []
+    v_forces_fz = []
+    for i in range(len(force_data_1)):
+        single_force_fx = []
+        single_force_fy = []
+        single_force_fz = []
+        for j in range(len(force_data_1[i])):
+            single_force_fx.append(force_data_1[i][j][0][6:7])
+            single_force_fy.append(force_data_1[i][j][0][7:8])
+            single_force_fz.append(force_data_1[i][j][0][8:9])
+        v_forces_fx.append(np.squeeze(np.array(single_force_fx)))
+        v_forces_fy.append(np.squeeze(np.array(single_force_fy)))
+        v_forces_fz.append(np.squeeze(np.array(single_force_fz)))
+
+    v_forces_mx = []
+    v_forces_my = []
+    v_forces_mz = []
+    for i in range(len(force_data_2)):
+        single_force_mx = []
+        single_force_my = []
+        single_force_mz = []
+        for j in range(len(force_data_2[i])):
+            single_force_mx.append(force_data_2[i][j][0][6:7])
+            single_force_my.append(force_data_2[i][j][0][7:8])
+            single_force_mz.append(force_data_2[i][j][0][8:9])
+        v_forces_mx.append(np.squeeze(np.array(single_force_mx)))
+        v_forces_my.append(np.squeeze(np.array(single_force_my)))
+        v_forces_mz.append(np.squeeze(np.array(single_force_mz)))
+
+    ax_1.plot3D(v_forces_fx[i], v_forces_fy[i], v_forces_fz[i], 'blue', label='Typical DDPG')
+    ax_1.plot3D(v_forces_mx[i], v_forces_my[i], v_forces_mz[i], 'red', label='FLDVTSP-DDPG')
+    for i in range(1, len(force_data_1)):
+        ax_1.plot3D(v_forces_fx[i], v_forces_fy[i], v_forces_fz[i], 'blue')
+        ax_1.plot3D(v_forces_mx[i], v_forces_my[i], v_forces_mz[i], 'red')
+
+    plt.yticks(fontsize=FONT_SIZE)
+    plt.xticks(fontsize=FONT_SIZE)
+    # plt.zticks(fontsize=FONT_SIZE)
+    # plt.xticks(fontsize=FONT_SIZE)
+    # plt.title('Path', fontsize=FONT_SIZE)
+    plt.legend(fontsize=FONT_SIZE)
+    ax_1.set_ylabel('$Y(mm)$', fontsize=FONT_SIZE, labelpad=FONT_SIZE)
+    ax_1.set_xlabel('$X(mm)$', fontsize=FONT_SIZE, labelpad=FONT_SIZE)
+    ax_1.set_zlabel('$Z(mm)$', fontsize=FONT_SIZE, labelpad=FONT_SIZE)
+
+    plt.subplots_adjust(left=0.13, bottom=0.13, right=0.98, top=0.98)
+    plt.tight_layout()
+    plt.savefig(name_0)
+    plt.show()
+
+
+def heat_map(force_path_1):
+    force_data_1 = np.load(force_path_1, allow_pickle=True)
+    MAX_LENGTH = 96
+
+    v_forces_fx = []
+    v_forces_fy = []
+    v_forces_fz = []
+    v_forces_mx = []
+    v_forces_my = []
+    v_forces_mz = []
+    for i in range(len(force_data_1)):
+        single_force_fx = []
+        single_force_fy = []
+        single_force_fz = []
+        single_force_mx = []
+        single_force_my = []
+        single_force_mz = []
+        for j in range(MAX_LENGTH):
+            if j > (len(force_data_1[i]) - 1):
+                single_force_fx.append([0.0])
+                single_force_fy.append([0.0])
+                single_force_fz.append([0.0])
+                single_force_mx.append([0.0])
+                single_force_my.append([0.0])
+                single_force_mz.append([0.0])
+            else:
+                single_force_fx.append(force_data_1[i][j][0][0:1])
+                single_force_fy.append(force_data_1[i][j][0][1:2])
+                single_force_fz.append(force_data_1[i][j][0][2:3])
+                single_force_mx.append(force_data_1[i][j][0][3:4])
+                single_force_my.append(force_data_1[i][j][0][4:5])
+                single_force_mz.append(force_data_1[i][j][0][5:6])
+                # single_force_fx.append(force_data_1[i][j][0:1])
+                # single_force_fy.append(force_data_1[i][j][1:2])
+                # single_force_fz.append(force_data_1[i][j][2:3])
+                # single_force_mx.append(force_data_1[i][j][3:4])
+                # single_force_my.append(force_data_1[i][j][4:5])
+                # single_force_mz.append(force_data_1[i][j][5:6])
+        v_forces_fx.append(np.squeeze(np.array(single_force_fx)))
+        v_forces_fy.append(np.squeeze(np.array(single_force_fy)))
+        v_forces_fz.append(np.squeeze(np.array(single_force_fz)))
+        v_forces_mx.append(np.squeeze(np.array(single_force_mx)))
+        v_forces_my.append(np.squeeze(np.array(single_force_my)))
+        v_forces_mz.append(np.squeeze(np.array(single_force_mz)))
+
+
+    plt.figure(figsize=(10, 8), dpi=300)
+
+    plt.subplot(231)
+    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    plt.subplots_adjust(left=0.12, bottom=0.20, right=0.98, top=0.98, wspace=0.23, hspace=0.1)
+    plt.imshow(v_forces_fx, aspect='auto', cmap=plt.cm.hot_r)
+    cbar = plt.colorbar(orientation='horizontal')
+    cbar.ax.set_ylabel('N', fontsize=FONT_SIZE)
+    plt.yticks([0, 30], fontsize=FONT_SIZE)
+    plt.xticks([0, MAX_LENGTH], fontsize=FONT_SIZE)
+    plt.title('$F_x$', fontsize=FONT_SIZE)
+    plt.ylabel('Test Number', fontsize=FONT_SIZE)
+    # plt.xlabel('$F_x$', fontsize=FONT_SIZE)
+
+    plt.subplot(232)
+    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    plt.subplots_adjust(left=0.165, bottom=0.20, right=0.98, top=0.98, wspace=0.1, hspace=0.1)
+    plt.imshow(np.array(v_forces_fy), aspect='auto', cmap=plt.cm.hot_r)
+    plt.yticks([0, 30], fontsize=FONT_SIZE)
+    plt.xticks([0, MAX_LENGTH], fontsize=FONT_SIZE)
+    plt.title('$F_y$', fontsize=FONT_SIZE)
+    plt.colorbar(orientation='horizontal')
+    # plt.ylabel('N', fontsize=FONT_SIZE)
+    # plt.xlabel('$F_y$', fontsize=FONT_SIZE)
+
+    plt.subplot(233)
+    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    plt.subplots_adjust(left=0.12, bottom=0.20, right=0.98, top=0.98, wspace=0.1, hspace=0.1)
+    plt.imshow(np.array(v_forces_fz), aspect='auto', cmap=plt.cm.hot_r)
+    # plt.colorbar(im)
+    plt.title('$F_z$', fontsize=FONT_SIZE)
+    plt.yticks([0, 30], fontsize=FONT_SIZE)
+    plt.xticks([0, MAX_LENGTH], fontsize=FONT_SIZE)
+    plt.colorbar(orientation='horizontal')
+    # plt.ylabel('N', fontsize=FONT_SIZE)
+    # plt.xlabel('$F_z$', fontsize=FONT_SIZE)
+
+    plt.subplot(234)
+    plt.tight_layout(pad=4.8, w_pad=1., h_pad=0.6)
+    plt.subplots_adjust(left=0.165, bottom=0.20, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
+    plt.imshow(np.array(v_forces_mx), aspect='auto', cmap=plt.cm.hot_r)
+    cbar = plt.colorbar(orientation='horizontal')
+    cbar.ax.set_ylabel('Nm', fontsize=FONT_SIZE)
+    plt.title('$M_x$', fontsize=FONT_SIZE)
+    plt.yticks([0, 30], fontsize=FONT_SIZE)
+    plt.xticks([0, MAX_LENGTH], fontsize=FONT_SIZE)
+    plt.ylabel('Test Number', fontsize=FONT_SIZE)
+    # plt.xlabel('$M_x$', fontsize=FONT_SIZE)
+
+    plt.subplot(235)
+    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    plt.subplots_adjust(left=0.13, bottom=0.15, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
+    plt.imshow(np.array(v_forces_my), aspect='auto', cmap=plt.cm.hot_r)
+    plt.title('$M_y$', fontsize=FONT_SIZE)
+    plt.yticks([0, 30], fontsize=FONT_SIZE)
+    plt.xticks([0, MAX_LENGTH], fontsize=FONT_SIZE)
+    plt.colorbar(orientation='horizontal')
+    # plt.ylabel('N', fontsize=FONT_SIZE)
+    # plt.xlabel('$M_y$', fontsize=FONT_SIZE)
+
+    plt.subplot(236)
+    plt.tight_layout(pad=4.8, w_pad=1., h_pad=1.)
+    plt.subplots_adjust(left=0.13, bottom=0.13, right=0.98, top=0.98, wspace=0.23, hspace=0.22)
+    plt.imshow(np.array(v_forces_mz), aspect='auto', cmap=plt.cm.hot_r)
+    plt.colorbar(orientation='horizontal')
+    plt.title('$M_z$', fontsize=FONT_SIZE)
+    plt.yticks([0, 30], fontsize=FONT_SIZE)
+    plt.xticks([0, MAX_LENGTH], fontsize=FONT_SIZE)
+    # plt.ylabel('N', fontsize=FONT_SIZE)
+    # plt.xlabel('$M_z$', fontsize=FONT_SIZE)
+
+    plt.subplots_adjust(left=0.13, bottom=0.13, right=0.98, top=0.98)
+    plt.tight_layout()
+
+    # fig.subplots_adjust(right=0.8)
+    # cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+    # cb = fig.colorbar(ax_6, ax=[ax_4, ax_5, ax_6], cax=cbar_ax, orientation='horizontal')
+
+    plt.savefig('./figure/pdf/ddpg_force_none_fuzzy.pdf')
+    plt.show()
+
+
 # plot_3d_point('./results/episode_state_fuzzy_noise_final.npy', './results/episode_state_none_fuzzy_noise_final.npy')
-# plot_state_space('./results/transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy',
-#                  './results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy')
 
-plot_state_space_new('./results/data_test/episode_state.npy',
-                     './results/data_fuzzy_test/episode_state.npy')
+# plot_state_space('./transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy',
+#                  './transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy',
+#                  './figure/pdf/ddpg_state_action_space.pdf')
+
+# plot_state_action_space('./results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy',
+                 # './results/transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy')
+
+# plot_state_space_new('./data_fuzzy_test_new/episode_actions.npy',
+#                      './data_test/episode_actions.npy',
+#                      './figure/pdf/dqn_state_action_space.pdf')
+
+# plot_state_space_new('./data_fuzzy_test_new/episode_state.npy',
+#                      './data_test/episode_state.npy',
+#                      './figure/pdf/dqn_state_space.pdf')
+
+# plot_state_action_space(state_path, action_path)
 
 # data = np.load('./results/transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/buffer_data.npy', allow_pickle=True)
 # print(data.shape)
 
-# plot_compare('./results/transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_reward.xls',
-             # './results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_reward.xls')
+# plot_compare('./transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_reward.xls',
+#              './transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_reward.xls',
+#              './figure/pdf/ddpg_test_episode_reward.pdf')
 
-# plot_compare('./results/data_fuzzy_test/episode_rewards.npy',
-                 # './results/data_test/episode_rewards.npy')
+# plot_compare('./data_test/episode_rewards.npy',
+#              './data_fuzzy_test_new/episode_rewards.npy',
+#              './figure/pdf/dqn_test_episode_reward.pdf')
 
-# data = np.load('./results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy', allow_pickle=True)
-# print(data.shape)
+# plot_comparision_hist('./transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_time.xls',
+#                       './transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_time.xls',
+#                        './figure/pdf/ddpg_test_episode_time.pdf')
+
+# plot_comparision_hist('./data_test/episode_time.npy',
+#                       './data_fuzzy_test_new/episode_time.npy',
+#                       './figure/pdf/dqn_test_episode_time.pdf')
+
+# heat_map('./data_test/episode_state.npy')
+# heat_map('./data_fuzzy_test_new/episode_state.npy')
+# heat_map('./transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy')
+# heat_map('./transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy')
 
 
-# dfs = pd.read_excel('./results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_time.xls')
-# none_fuzzy_data = xlrd.open_workbook('./results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_time.xls')
-# fuzzy_data = dfs.values.astype(np.float)[:, 0]
-# print(fuzzy_data)
-# print(len(none_fuzzy_data))
+plot_3D_path('./data_test/episode_state.npy',
+             './data_fuzzy_test_new/episode_state.npy',
+             './figure/pdf/dqn_path_fuzzy.pdf')
 
-# plot_comparision_hist('./results/transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_time.xls',
-#                       './results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_time.xls')
-
-
-# heat_map('./results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy',
-#          './results/transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states.npy')
+plot_3D_path_new('transfer/dual_assembly/TD3_dual-peg-in-hole_seed_0/evaluation_states_new.npy',
+             'transfer/dual_assembly_VPB_new/TD3_dual-peg-in-hole_seed_0/evaluation_states_new_2.npy',
+             './figure/pdf/ddpg_path_fuzzy.pdf')

@@ -477,11 +477,11 @@ def Test_calibrate():
     Controller = Robot_control()
 
     """Calibrate the force sensor"""
-    # print('===================== Calibrate the force-moment sensor =========================')
-    # done = Controller.CalibFCforce()
-    # force = Controller.GetFCForce()
-    # print(force)
-    # print('=================================================================================')
+    print('===================== Calibrate the force-moment sensor =========================')
+    done = Controller.CalibFCforce()
+    force = Controller.GetFCForce()
+    print(force)
+    print('=================================================================================')
 
     """ Test the calibrated force sensor"""
     # print('===================== show the result of F/T sensor =============================')
@@ -499,19 +499,19 @@ def Test_calibrate():
     # print('=================================================================================')
 
     """used to search the initial position and euler; please note the other pytorch"""
-    print('======================== Position    and Force Information =========================')
-    position, euler, T = Controller.GetCalibTool()
-    print('position', position)
-    print('eulerang', euler)
-    # Controller.MovelineTo(Controller.set_initial_pos + [0., 0., 50.], Controller.set_initial_euler + [0., 0., 0.], 10)
-    # Controller.MovelineTo(Controller.set_search_start_pos, Controller.set_search_start_euler, 10)
-    Controller.MovelineTo(position + [0., 0., 2.], euler + [0., 0., 0.], 10)
-    # Controller.MovelineTo(np.array([539.8574, -39.699, 196.9704]), np.array([179.4024, -0.3589, -43.0688]), 10)
-    # position:[539.8574, - 39.699, 196.9704]
-    # eulerang:[179.4024 - 0.3589 - 43.0688]
-    # force = Controller.GetFCForce()
-    # print('force', force)
-    print('====================================================================================')
+    # print('======================== Position    and Force Information =========================')
+    # position, euler, T = Controller.GetCalibTool()
+    # print('position', position)
+    # print('eulerang', euler)
+    # # Controller.MovelineTo(Controller.set_initial_pos + [0., 0., 50.], Controller.set_initial_euler + [0., 0., 0.], 10)
+    # # Controller.MovelineTo(Controller.set_search_start_pos, Controller.set_search_start_euler, 10)
+    # Controller.MovelineTo(position + [0., 0., 200.], euler + [0., 0., 0.], 10)
+    # # Controller.MovelineTo(np.array([539.8574, -39.699, 196.9704]), np.array([179.4024, -0.3589, -43.0688]), 10)
+    # # position:[539.8574, - 39.699, 196.9704]
+    # # eulerang:[179.4024 - 0.3589 - 43.0688]
+    # # force = Controller.GetFCForce()
+    # # print('force', force)
+    # print('====================================================================================')
 
     # # Controller.MoveToolTo(position + [0, 0, 0], euler + [0, 0, 0.], 20)
     # Controller.MovelineTo(Controller.set_search_pos+[0., 0., 0], Controller.set_search_euler + [-0., 0., -0.], 5)

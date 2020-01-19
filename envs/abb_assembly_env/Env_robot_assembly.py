@@ -81,7 +81,7 @@ class env_assembly_search(object):
                                 # high_output=np.array([0.03, 0.03, 0.004, 0.03, 0.03, 0.03]))
 
         self.fc = fuzzy_control(low_output=np.array([0., 0., 0., 0., 0., 0.]),
-                                high_output=np.array([0.02, 0.02, 0.004, 0.02, 0.02, 0.02]))
+                                high_output=np.array([0.03, 0.03, 0.005, 0.03, 0.03, 0.03]))
         """ initial position and orientation """
         # self.set_initial_pos = np.array([1453.2509, 73.2577, 1000])
         # self.set_initial_euler = np.array([179.8938, 0.9185, 1.0311])
@@ -167,7 +167,8 @@ class env_assembly_search(object):
         """execute the action"""
 
         movePosition, setVel = self.__expert_action()
-        executeAction = movePosition + movePosition * action[0]
+        print('action', action)
+        executeAction = movePosition + movePosition * action
         self.safe_or_not = self.__safe_or_not()
 
         if self.safe_or_not is False:
@@ -187,7 +188,7 @@ class env_assembly_search(object):
         print('Number of steps::', self.timer)
         self.timer += 1
 
-        return self.code_state(self.next_state), self.next_state, reward, done, self.safe_or_not, executeAction
+        return self.code_state(self.next_state), self.next_state, reward, done, self.safe_or_not, executeAction, action
 
     def step_discrete_action(self, action):
         """execute the action"""
