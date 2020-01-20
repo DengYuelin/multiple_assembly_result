@@ -76,7 +76,7 @@ class Solver(object):
         elif 'SHRLAAC' == args.policy_name:
             policy = SHRLAAC.SHRLAAC(state_dim, action_dim, max_action)
         elif 'HRLACOP' == args.policy_name:
-            policy = HRL_off_policy.HRLACOP(state_dim, action_dim, max_action)
+            policy = HRL_off_policy.HRLACOP(state_dim, action_dim, max_action, option_num=self.args.option_num)
         else:
             policy = TD3.TD3(state_dim, action_dim, max_action)
 
@@ -84,8 +84,8 @@ class Solver(object):
         self.replay_buffer = utils.ReplayBufferMat()
 
         # data efficient hrl
-        self.replay_buffer_high = utils.ReplayBufferHighLevel
-        self.replay_buffer_low = utils.ReplayBufferOption
+        self.replay_buffer_high = utils.ReplayBufferHighLevel()
+        self.replay_buffer_low = utils.ReplayBufferOption()
 
         self.total_timesteps = 0
         self.pre_num_steps = self.total_timesteps
@@ -177,11 +177,11 @@ class Solver(object):
         self.pbar = tqdm(total=self.args.max_timesteps, initial=self.total_timesteps, position=0, leave=True)
         done = True
         self.cumulative_reward = 0.
+        self.steps_done = 0
         while self.total_timesteps < self.args.max_timesteps:
             # ================ Train =============================================#
-            self.train_once()
+            # self.train_once()
             # ====================================================================#
-
             if done:
                 self.eval_once()
                 self.reset()
@@ -191,32 +191,32 @@ class Solver(object):
             if self.total_timesteps < self.args.start_timesteps:
                 action = self.env.action_space.sample()
                 p = 1
+                self.option = np.random.randint(self.args.option_num)
+                print(self.option)
             else:
                 if 'RNN' in self.args.policy_name:
                     action = self.policy.select_action(np.array(self.obs_vec))
-                elif 'SAC' in self.args.policy_name or 'HRL' in self.args.policy_name:
+                elif 'SAC' in self.args.policy_name:
                     action = self.policy.select_action(np.array(self.obs), eval=False)
                 elif 'HRLACOP' in self.args.policy_name:
                     # change option and calculate reward
                     if self.total_timesteps % self.args.option_change:
                         import math, random
-                        global steps_done
-                        LongTensor = torch.cuda.LongTensor
                         EPS_START = 0.9
                         EPS_END = 0.05
-                        EPS_DECAY = 200
+                        EPS_DECAY = 20000
                         sample = random.random()
                         eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-                                        math.exp(-1. * steps_done / EPS_DECAY)
+                                        math.exp(-1. * self.steps_done / EPS_DECAY)
 
-                        steps_done += 1
+                        self.steps_done += 1
                         if sample > eps_threshold:
-                            next_option = self.policy.option_target(np.array(self.obs)).data.max(1)[1].view(1, 1)
+                            next_option = self.policy.select_option(np.array(self.obs))
                         else:
-                            next_option = LongTensor([[random.randrange(self.args.option_num)]])
-
-                        self.replay_buffer_high.add(
-                            (self.obs, new_obs, self.option, next_option, self.cumulative_reward))
+                            next_option = np.random.randint(self.args.option_num)
+                        print('next_option', next_option)
+                        print('option', self.option)
+                        self.replay_buffer_high.add((self.obs, new_obs, self.option, next_option, self.cumulative_reward))
 
                         self.cumulative_reward = 0.
                     # select action
@@ -230,7 +230,7 @@ class Solver(object):
                     action = (action + noise).clip(
                         self.env.action_space.low, self.env.action_space.high)
 
-                if 'HRL' in self.args.policy_name:
+                if 'HRLAC' == self.args.policy_name:
                     p_noise = multivariate_normal.pdf(
                         noise, np.zeros(shape=self.env.action_space.shape[0]),
                         self.args.expl_noise * self.args.expl_noise * np.identity(noise.shape[0]))
@@ -596,7 +596,6 @@ class Assembly_solver(object):
             # self.code_state(self.next_state), self.next_state, reward, done, self.safe_or_not, executeAction
             new_obs, original_state, reward, done, safe_or_not, executeAction = self.env.step(action)
             self.episode_reward += reward
-
             done_bool = 0 if self.episode_timesteps + 1 == self.args.max_episode_steps else float(done)
 
             if 'IM' in self.args.policy_name:
@@ -697,41 +696,35 @@ class Assembly_solver(object):
 
 
 # Runs policy for X episodes and returns average reward
-def evaluate_policy(env, policy, args, eval_episodes=1):
+def evaluate_policy(env, policy, args, eval_episodes=10):
     avg_reward = 0.
-    start_time = time.time()
     for _ in range(eval_episodes):
-        # Reset environment
-        obs, _, _ = env.reset()
+        obs = env.reset()
         if 'RNN' in args.policy_name:
             obs_vec = np.dot(np.ones((args.seq_len, 1)), obs.reshape((1, -1)))
         done = False
-        time_step = 0
-        safe_or_not = True
-        while not done and safe_or_not and time_step < args.max_episode_steps:
+        while not done:
             if 'RNN' in args.policy_name:
                 action = policy.select_action(np.array(obs_vec))
+            elif 'HRLACOP' in args.policy_name:
+                option = policy.select_option(np.array(obs))
+                action = policy.select_action(np.array(obs), option)
             else:
-                # print(obs)
-                action = policy.select_action(obs)
+                action = policy.select_action(np.array(obs))
 
             if 'IM' in args.policy_name:
                 action_im = np.copy(action)
                 action = utils.calc_torque_from_impedance(action_im, np.asarray(obs)[8:-2])
 
-            # obs, reward, done, _ = env.step(action)
-            obs, original_state, reward, done, safe_or_not, executeAction = env.step(action)
+            obs, reward, done, _ = env.step(action)
             if 'RNN' in args.policy_name:
                 obs_vec = utils.fifo_data(obs_vec, obs)
             avg_reward += reward
-            time_step += 1
-
     avg_reward /= eval_episodes
-    avg_time = (time.time() - start_time) / eval_episodes
     # print ("---------------------------------------"                      )
     # print ("Evaluation over %d episodes: %f" % (eval_episodes, avg_reward))
     # print ("---------------------------------------"                      )
-    return avg_reward, avg_time
+    return avg_reward
 
 
 def cal_true_value(env, policy, replay_buffer, args, eval_episodes=1000):

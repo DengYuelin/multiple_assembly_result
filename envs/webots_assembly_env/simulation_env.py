@@ -11,7 +11,7 @@ import math
 from controller import Supervisor
 import matplotlib.pyplot as plt
 import numpy as np
-import foundations.calculations as cal
+import envs.webots_assembly_env.foundations.calculations as cal
 from gym import spaces
 
 # Create the arm chain (robot).

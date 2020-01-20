@@ -6,7 +6,7 @@ import glob
 from torch.autograd import Variable
 import torch.nn.functional as F
 from torch.distributions import Categorical
-from ..utils.model import Actor1D, Critic, Option, OptionValue
+from ..utils.model import Actor1D, ActorList, Critic, Option, OptionValue
 
 if torch.cuda.is_available():
 	torch.cuda.empty_cache()
@@ -19,8 +19,8 @@ class HRLACOP(object):
 				 entropy_coeff=0.1, c_reg=1.0, c_ent=4, option_buffer_size=5000,
 				 action_noise=0.2, policy_noise=0.2, noise_clip = 0.5, use_option_net=True):
 
-		self.actor = Actor1D(state_dim, action_dim, max_action, option_num).to(device)
-		self.actor_target = Actor1D(state_dim, action_dim, max_action, option_num).to(device)
+		self.actor = ActorList(state_dim, action_dim, max_action, option_num).to(device)
+		self.actor_target = ActorList(state_dim, action_dim, max_action, option_num).to(device)
 		self.actor_target.load_state_dict(self.actor.state_dict())
 		self.actor_optimizer = torch.optim.Adam(self.actor.parameters())
 
@@ -62,9 +62,7 @@ class HRLACOP(object):
               discount_higher=0.99,
               discount_lower=0.99,
               tau=0.005,
-              policy_freq=2
-			  ):
-
+              policy_freq=2):
 		self.it += 1
 		state, action, option, target_q, current_q_value = \
 			self.calc_target_q(replay_buffer_lower, batch_size_lower, discount_lower, is_on_poliy=False)
@@ -223,12 +221,11 @@ class HRLACOP(object):
 		'''
 		state = torch.FloatTensor(state.reshape(1, -1)).to(device)
 		_, option_num = self.option_target(state)
-		return option_num.data.max(1)[1].view(1, 1)
+		return option_num.data.max(1)[1].view(1, 1).cpu().data.numpy().flatten()
 
 	def select_action(self, state, option):
 		state = torch.FloatTensor(state.reshape(1, -1)).to(device)
 		action = self.actor(state)[torch.arange(state.shape[0]), :, option]
-		self.option_val = option.cpu().data.numpy().flatten()
 		return action.cpu().data.numpy().flatten()
 
 	def save(self, filename, directory):

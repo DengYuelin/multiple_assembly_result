@@ -171,13 +171,14 @@ class ReplayBufferHighLevel(object):
     @staticmethod
     def sample_from_storage(batch_size, storage):
         ind = np.random.randint(0, len(storage), size=batch_size)
-        state, next_state, option, reward = [], [], [], []
+        state, next_state, option, next_option, reward = [], [], [], []
         for i in ind:
-            X, Y, O, R = storage[i]
+            X, Y, O, U, R = storage[i]
             state.append(np.array(X, copy=False))
             next_state.append(np.array(Y, copy=False))
             # action.append(np.array(U, copy=False))
             option.append(np.array(O, copy=False))
+            next_option.append(np.array(U, copy=False))
             reward.append(np.array(R, copy=False))
             # done.append(np.array(D, copy=False))
         return np.array(state), \
