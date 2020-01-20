@@ -283,7 +283,7 @@ class HRLAC(object):
 		# Select action according to policy and add clipped noise
 		noise = torch.FloatTensor(u).data.normal_(0, policy_noise).to(device)
 		noise = noise.clamp(-noise_clip, noise_clip)
-		next_action = (self.actor_target(next_state)[torch.arange(next_state.shape[0]),:,next_option_batch]
+		next_action = (self.actor_target(next_state)[torch.arange(next_state.shape[0]), :, next_option_batch]
 					   + noise).clamp(-self.max_action, self.max_action)
 
 		target_q1, target_q2 = self.critic_target(next_state, next_action)

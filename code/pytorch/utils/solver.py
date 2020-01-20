@@ -33,7 +33,7 @@ class Solver(object):
         self.true_Q_vals = []
 
         # Set seeds
-        self.env.seed(args.seed)
+        # self.env.seed(args.seed)
         torch.manual_seed(args.seed)
         np.random.seed(args.seed)
 
@@ -149,6 +149,7 @@ class Solver(object):
     def reset(self):
         # Reset environment
         self.obs = self.env.reset()
+        self.high_obs = self.obs
         self.obs_vec = np.dot(np.ones((self.args.seq_len, 1)), self.obs.reshape((1, -1)))
         self.episode_reward = 0
         self.episode_timesteps = 0
@@ -178,7 +179,9 @@ class Solver(object):
         done = True
         self.cumulative_reward = 0.
         self.steps_done = 0
+        cum_obs, cum_new_obs, cum_action, cum_option, cum_next_option, cum_reward, done_bool = [], [], [], [], []
         while self.total_timesteps < self.args.max_timesteps:
+            
             # ================ Train =============================================#
             # self.train_once()
             # ====================================================================#
@@ -208,7 +211,7 @@ class Solver(object):
                         sample = random.random()
                         eps_threshold = EPS_END + (EPS_START - EPS_END) * \
                                         math.exp(-1. * self.steps_done / EPS_DECAY)
-
+                        self.next_high_obs = self.obs
                         self.steps_done += 1
                         if sample > eps_threshold:
                             next_option = self.policy.select_option(np.array(self.obs))
@@ -216,9 +219,10 @@ class Solver(object):
                             next_option = np.random.randint(self.args.option_num)
                         print('next_option', next_option)
                         print('option', self.option)
-                        self.replay_buffer_high.add((self.obs, new_obs, self.option, next_option, self.cumulative_reward))
-
+                        self.replay_buffer_high.add((self.high_obs, self.next_high_obs, self.option, next_option, self.cumulative_reward))
                         self.cumulative_reward = 0.
+                        self.high_obs = self.next_high_obs
+                        
                     # select action
                     action = self.policy.select_action(np.array(self.obs), self.option)
                 else:
@@ -374,7 +378,7 @@ class Assembly_solver(object):
         self.true_Q_vals = []
 
         # Set seeds
-        self.env.seed(args.seed)
+        # self.env.seed(args.seed)
         torch.manual_seed(args.seed)
         np.random.seed(args.seed)
 
@@ -502,7 +506,7 @@ class Assembly_solver(object):
         return done, safe_or_not
 
     def train(self):
-        avg_reward, avg_time = evaluate_policy(self.env, self.policy, self.args)
+        avg_reward, avg_time = evaluate_assembly_policy(self.env, self.policy, self.args)
 
         self.evaluations_reward = [avg_reward]
         self.evaluations_time = [avg_time]
@@ -615,7 +619,7 @@ class Assembly_solver(object):
             self.timesteps_calc_Q_vale += 1
 
         # Final evaluation
-        avg_reward, avg_time = evaluate_policy(self.env, self.policy, self.args)
+        avg_reward, avg_time = evaluate_assembly_policy(self.env, self.policy, self.args)
         self.evaluations_reward.append(avg_reward)
         self.evaluations_time.append(avg_time)
         print('evaluations_reward', self.evaluations_reward)
@@ -710,6 +714,7 @@ def evaluate_policy(env, policy, args, eval_episodes=10):
                 option = policy.select_option(np.array(obs))
                 action = policy.select_action(np.array(obs), option)
             else:
+                print(np.array(obs))
                 action = policy.select_action(np.array(obs))
 
             if 'IM' in args.policy_name:
@@ -717,6 +722,39 @@ def evaluate_policy(env, policy, args, eval_episodes=10):
                 action = utils.calc_torque_from_impedance(action_im, np.asarray(obs)[8:-2])
 
             obs, reward, done, _ = env.step(action)
+            if 'RNN' in args.policy_name:
+                obs_vec = utils.fifo_data(obs_vec, obs)
+            avg_reward += reward
+    avg_reward /= eval_episodes
+    # print ("---------------------------------------"                      )
+    # print ("Evaluation over %d episodes: %f" % (eval_episodes, avg_reward))
+    # print ("---------------------------------------"                      )
+    return avg_reward
+
+
+# Runs policy for X episodes and returns average reward
+def evaluate_assembly_policy(env, policy, args, eval_episodes=10):
+    avg_reward = 0.
+    for _ in range(eval_episodes):
+        obs, _, done = env.reset()
+        if 'RNN' in args.policy_name:
+            obs_vec = np.dot(np.ones((args.seq_len, 1)), obs.reshape((1, -1)))
+        done = False
+        while not done:
+            if 'RNN' in args.policy_name:
+                action = policy.select_action(np.array(obs_vec))
+            elif 'HRLACOP' in args.policy_name:
+                option = policy.select_option(np.array(obs))
+                action = policy.select_action(np.array(obs), option)
+            else:
+                action = policy.select_action(np.array(obs))
+
+            if 'IM' in args.policy_name:
+                action_im = np.copy(action)
+                action = utils.calc_torque_from_impedance(action_im, np.asarray(obs)[8:-2])
+
+            # obs, reward, done, _ = env.step(action)
+            obs, _, reward, done, _ = env.step(action)
             if 'RNN' in args.policy_name:
                 obs_vec = utils.fifo_data(obs_vec, obs)
             avg_reward += reward

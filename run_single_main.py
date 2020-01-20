@@ -8,7 +8,7 @@ print(sys.path)
 from envs.webots_assembly_env.simulation_env import ArmEnv
 import argparse
 import numpy as np
-from code.pytorch.utils.solver import Solver
+from code.pytorch.utils.solver import Solver, Assembly_solver
 
 
 def test_env(env):
@@ -20,7 +20,7 @@ def test_env(env):
 
 
 def main(env, args):
-    solver = Solver(args, env, project_path)
+    solver = Assembly_solver(args, env, project_path)
     if not args.eval_only:
         solver.train()
     else:
