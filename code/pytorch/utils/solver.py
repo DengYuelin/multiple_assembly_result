@@ -749,8 +749,10 @@ def evaluate_policy(env, policy, args, eval_episodes=10):
 # Runs policy for X episodes and returns average reward
 def evaluate_assembly_policy(env, policy, args, eval_episodes=10):
     avg_reward = 0.
+    avg_time = 0.
     for _ in range(eval_episodes):
         obs, _, done = env.reset()
+        start_time = time.time()
         if 'RNN' in args.policy_name:
             obs_vec = np.dot(np.ones((args.seq_len, 1)), obs.reshape((1, -1)))
         done = False
@@ -772,6 +774,7 @@ def evaluate_assembly_policy(env, policy, args, eval_episodes=10):
             if 'RNN' in args.policy_name:
                 obs_vec = utils.fifo_data(obs_vec, obs)
             avg_reward += reward
+    avg_time = (time.time() - start_time)/eval_episodes
     avg_reward /= eval_episodes
     # print ("---------------------------------------"                      )
     # print ("Evaluation over %d episodes: %f" % (eval_episodes, avg_reward))
