@@ -122,8 +122,12 @@ class ReplayBufferOption(object):
             reward.append(np.array(R, copy=False))
             done.append(np.array(D, copy=False))
         return np.array(state), \
-               np.array(next_option), np.array(action), np.array(reward).reshape(-1, 1), \
-               np.array(option).reshape(-1, 1), np.array(done).reshape(-1, 1)
+               np.array(next_state), \
+               np.array(action), \
+               np.array(option).reshape(-1, 1), \
+               np.array(next_option), \
+               np.array(reward).reshape(-1, 1), \
+               np.array(done).reshape(-1, 1)
 
     def save_buffer(self, path):
         np.save(path, self.storage)
@@ -171,7 +175,7 @@ class ReplayBufferHighLevel(object):
     @staticmethod
     def sample_from_storage(batch_size, storage):
         ind = np.random.randint(0, len(storage), size=batch_size)
-        state, next_state, option, next_option, reward = [], [], [], []
+        state, next_state, option, next_option, reward = [], [], [], [], []
         for i in ind:
             X, Y, O, U, R = storage[i]
             state.append(np.array(X, copy=False))
@@ -183,9 +187,9 @@ class ReplayBufferHighLevel(object):
             # done.append(np.array(D, copy=False))
         return np.array(state), \
                np.array(next_state), \
-               # np.array(action),
-                # np.array(reward).reshape(-1, 1),
-                # np.array(option).reshape(-1, 1)
+               np.array(option), \
+               np.array(reward).reshape(-1, 1),\
+               np.array(next_option).reshape(-1, 1)
 
     def save_buffer(self, path):
         np.save(path, self.storage)

@@ -17,7 +17,7 @@ from scipy import signal
 
 from ..methods import ATD3, ATD3_RNN, Average_TD3, DDPG, \
     TD3, SAC, DDPG_RNN, TD3_RNN, ATD3_IM, SAAC, AAC, \
-    HRLAC, HRLSAC, HRLAAC, HRLLAC, SHRLAAC, MATD3, HRL_off_policy
+    HRLAC, HRLSAC, HRLAAC, HRLLAC, SHRLAAC, MATD3, HRLACOP
 
 
 class Solver(object):
@@ -76,7 +76,7 @@ class Solver(object):
         elif 'SHRLAAC' == args.policy_name:
             policy = SHRLAAC.SHRLAAC(state_dim, action_dim, max_action)
         elif 'HRLACOP' == args.policy_name:
-            policy = HRL_off_policy.HRLACOP(state_dim, action_dim, max_action, option_num=self.args.option_num)
+            policy = HRLACOP.HRLACOP(state_dim, action_dim, max_action, option_num=self.args.option_num)
         else:
             policy = TD3.TD3(state_dim, action_dim, max_action)
 
@@ -96,12 +96,25 @@ class Solver(object):
         self.env_timeStep = 4
 
     def train_once(self):
-        if self.total_timesteps != 0:
+        if self.total_timesteps != 0 and self.total_timesteps > 1000:
             if self.args.evaluate_Q_value:
                 self.writer_train.add_scalar('ave_reward', self.episode_reward, self.total_timesteps)
-            self.policy.train(self.replay_buffer, self.args.batch_size, self.args.discount,
-                              self.args.tau, self.args.policy_noise, self.args.noise_clip,
-                              self.args.policy_freq)
+
+            if 'HRLACOP' in self.args.policy_name:
+                self.policy.train(
+                    self.replay_buffer_low,
+                    self.replay_buffer_high,
+                    batch_size_lower=self.args.batch_size,
+                    batch_size_higher=10,
+                    discount_higher=self.args.discount,
+                    discount_lower=self.args.discount,
+                    tau=self.args.tau,
+                    policy_freq=self.args.policy_freq
+                )
+            else:
+                self.policy.train(self.replay_buffer, self.args.batch_size, self.args.discount,
+                                  self.args.tau, self.args.policy_noise, self.args.noise_clip,
+                                  self.args.policy_freq)
 
     def eval_once(self):
         self.pbar.update(self.total_timesteps - self.pre_num_steps)
@@ -179,12 +192,12 @@ class Solver(object):
         done = True
         self.cumulative_reward = 0.
         self.steps_done = 0
-        cum_obs, cum_new_obs, cum_action, cum_option, cum_next_option, cum_reward, done_bool = [], [], [], [], []
+        cum_obs, cum_new_obs, cum_action, cum_option, cum_next_option, cum_reward, done_bool = [], [], [], [], [], [], []
         while self.total_timesteps < self.args.max_timesteps:
-            
             # ================ Train =============================================#
-            # self.train_once()
+            self.train_once()
             # ====================================================================#
+            
             if done:
                 self.eval_once()
                 self.reset()
@@ -195,7 +208,7 @@ class Solver(object):
                 action = self.env.action_space.sample()
                 p = 1
                 self.option = np.random.randint(self.args.option_num)
-                print(self.option)
+                self.next_option = np.random.randint(self.args.option_num)
             else:
                 if 'RNN' in self.args.policy_name:
                     action = self.policy.select_action(np.array(self.obs_vec))
@@ -213,16 +226,17 @@ class Solver(object):
                                         math.exp(-1. * self.steps_done / EPS_DECAY)
                         self.next_high_obs = self.obs
                         self.steps_done += 1
+
                         if sample > eps_threshold:
-                            next_option = self.policy.select_option(np.array(self.obs))
+                            option, _, _ = self.policy.softmax_option_target([np.array(self.obs)])
+                            self.next_option = option.cpu().data.numpy().flatten()[0]
                         else:
-                            next_option = np.random.randint(self.args.option_num)
-                        print('next_option', next_option)
-                        print('option', self.option)
-                        self.replay_buffer_high.add((self.high_obs, self.next_high_obs, self.option, next_option, self.cumulative_reward))
+                            self.next_option = np.random.randint(self.args.option_num)
+                        # print('next_option', self.next_option)
+                        self.replay_buffer_high.add((self.high_obs, self.next_high_obs, self.option, self.next_option, self.cumulative_reward))
                         self.cumulative_reward = 0.
                         self.high_obs = self.next_high_obs
-                        
+
                     # select action
                     action = self.policy.select_action(np.array(self.obs), self.option)
                 else:
@@ -257,6 +271,9 @@ class Solver(object):
 
             done_bool = 0 if self.episode_timesteps + 1 == self.env._max_episode_steps else float(done)
 
+            if 'HRLACOP' == self.args.policy_name:
+                self.replay_buffer_low.add((self.obs, new_obs, action, self.option, self.next_option, reward, done_bool))
+                self.option = self.next_option
             if 'IM' in self.args.policy_name:
                 action = action_im
             if 'RNN' in self.args.policy_name:
@@ -266,9 +283,6 @@ class Solver(object):
                 self.obs_vec = utils.fifo_data(self.obs_vec, new_obs)
             elif 'HRL' in self.args.policy_name:
                 self.replay_buffer.add((self.obs, new_obs, action, reward, done_bool, p))
-            elif 'HRLACOP' in self.args.policy_name:
-                self.option = next_option
-                self.replay_buffer_low.add((self.obs, new_obs, action, self.option, next_option, reward, done_bool))
             else:
                 self.replay_buffer.add((self.obs, new_obs, action, reward, done_bool))
 

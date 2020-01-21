@@ -134,8 +134,8 @@ class HRLAC(object):
 				 entropy_coeff=0.1, c_reg=1.0, c_ent=4, option_buffer_size=5000,
 				 action_noise=0.2, policy_noise=0.2, noise_clip = 0.5, use_option_net=True):
 
-		self.actor = Actor1D(state_dim, action_dim, max_action, option_num).to(device)
-		self.actor_target = Actor1D(state_dim, action_dim, max_action, option_num).to(device)
+		self.actor = ActorList(state_dim, action_dim, max_action, option_num).to(device)
+		self.actor_target = ActorList(state_dim, action_dim, max_action, option_num).to(device)
 		self.actor_target.load_state_dict(self.actor.state_dict())
 		self.actor_optimizer = torch.optim.Adam(self.actor.parameters())
 

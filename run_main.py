@@ -16,7 +16,6 @@ import gym
 def test_env(env):
     env.reset()
     state = np.random.rand(22)
-    print(env.set_robot(state) - state)
     while True:
         env.render()
 
@@ -60,6 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--option_batch_size", default=50, type=int)  # Batch size for both actor and critic
     parser.add_argument("--policy_batch_size", default=100, type=int)  # Batch size for both actor and critic
     parser.add_argument("--critic_batch_size", default=400, type=int)  # Batch size for both actor and critic
+    parser.add_argument("--upper_critic_batch_size", default=200, type=int)  # Batch size for both actor and critic
 
     # save and load policy
     parser.add_argument("--load_policy", default=False)
@@ -101,8 +101,8 @@ if __name__ == "__main__":
         # 'RoboschoolAtlasForwardWalk-v1'
     ]
 
-    # policy_name_vec = ['TD3', 'ATD3', 'ATD3_RNN']
     policy_name_vec = ['HRLACOP']
+    # policy_name_vec = ['HRLAC']
     # for i in range(5):
     #     args.seed = i
     for env_name in env_name_vec:

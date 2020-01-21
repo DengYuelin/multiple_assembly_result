@@ -394,7 +394,7 @@ class Actor(nn.Module):
 
 
 class ActorList(nn.Module):
-    def __init__(self, state_dim, action_dim, max_action, option_num = 3):
+    def __init__(self, state_dim, action_dim, max_action, option_num=3):
         super(ActorList, self).__init__()
         self.l1 = nn.ModuleList([nn.Linear(state_dim, 400) for i in range(option_num)])
         self.l2 = nn.ModuleList([nn.Linear(400, 300) for i in range(option_num)])
