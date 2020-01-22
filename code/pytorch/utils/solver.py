@@ -192,6 +192,7 @@ class Solver(object):
         done = True
         self.cumulative_reward = 0.
         self.steps_done = 0
+        option_data = []
         cum_obs, cum_new_obs, cum_action, cum_option, cum_next_option, cum_reward, done_bool = [], [], [], [], [], [], []
         while self.total_timesteps < self.args.max_timesteps:
             # ================ Train =============================================#
@@ -232,11 +233,14 @@ class Solver(object):
                             self.next_option = option.cpu().data.numpy().flatten()[0]
                         else:
                             self.next_option = np.random.randint(self.args.option_num)
-                        # print('next_option', self.next_option)
                         self.replay_buffer_high.add((self.high_obs, self.next_high_obs, self.option, self.next_option, self.cumulative_reward))
                         self.cumulative_reward = 0.
                         self.high_obs = self.next_high_obs
 
+                        self.auxiliary_reward = self.cumulative_reward / self.args.option_change
+                        option_data[:, -2] = self.auxiliary_reward
+                        self.replay_buffer_low.add(option_data)
+                        option_data = []
                     # select action
                     action = self.policy.select_action(np.array(self.obs), self.option)
                 else:
@@ -257,25 +261,22 @@ class Solver(object):
                     else:
                         p = (p_noise * utils.softmax(self.policy.q_predict)[self.policy.option_val])[0]
 
-            if 'IM' in self.args.policy_name:
-                action_im = np.copy(action)
-                action = utils.calc_torque_from_impedance(action_im,
-                                                          np.asarray(self.obs)[8:-2]).clip(
-                        self.env.action_space.low, self.env.action_space.high)
-
-            # Perform action
             new_obs, reward, done, _ = self.env.step(action)
+            cum_obs.append(self.obs)
+            cum_new_obs.append(new_obs)
+            cum_action.append(action)
+            cum_option.append(self.option)
+            cum_reward.append(reward)
 
             self.cumulative_reward += reward
             self.episode_reward += reward
+            auxiliary_reward = 0.
 
             done_bool = 0 if self.episode_timesteps + 1 == self.env._max_episode_steps else float(done)
 
             if 'HRLACOP' == self.args.policy_name:
-                self.replay_buffer_low.add((self.obs, new_obs, action, self.option, self.next_option, reward, done_bool))
+                option_data.append((self.obs, new_obs, action, self.option, self.next_option, reward, auxiliary_reward, done_bool))
                 self.option = self.next_option
-            if 'IM' in self.args.policy_name:
-                action = action_im
             if 'RNN' in self.args.policy_name:
                 # Store data in replay buffer
                 new_obs_vec = utils.fifo_data(np.copy(self.obs_vec), new_obs)
@@ -509,7 +510,6 @@ class Assembly_solver(object):
 
     def reset(self):
         # Reset environment
-
         self.obs, _, _ = self.env.reset()
         self.episode_reward = 0
         self.episode_timesteps = 0
@@ -547,7 +547,7 @@ class Assembly_solver(object):
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
-        if self.args.load_model:
+        if self.args.load_policy:
             self.policy.load(str(self.args.load_policy_idx), self.args.load_path)
 
         # TesnorboardX
@@ -573,6 +573,7 @@ class Assembly_solver(object):
                 utils.write_table(self.log_dir + "/train_reward_accuracy", np.asarray(self.training_reward))
                 utils.write_table(self.log_dir + "/train_time_accuracy", np.asarray(self.training_time))
 
+            # print(self.episode_timesteps)
             if done or self.episode_timesteps + 1 > self.args.max_episode_steps:
                 print('done::::::::::::::::::::::::::::::::::::::::::::::', done)
                 print('total_timesteps ::::::::::::::::::', self.total_timesteps)
@@ -612,7 +613,8 @@ class Assembly_solver(object):
                     self.env.action_space.low, self.env.action_space.high)
 
             # self.code_state(self.next_state), self.next_state, reward, done, self.safe_or_not, executeAction
-            new_obs, original_state, reward, done, safe_or_not, executeAction = self.env.step(action)
+            # new_obs, original_state, reward, done, safe_or_not, executeAction = self.env.step(action)
+            new_obs, original_state, reward, done, safe_or_not = self.env.step(action)
             self.episode_reward += reward
             done_bool = 0 if self.episode_timesteps + 1 == self.args.max_episode_steps else float(done)
 
@@ -756,7 +758,8 @@ def evaluate_assembly_policy(env, policy, args, eval_episodes=10):
         if 'RNN' in args.policy_name:
             obs_vec = np.dot(np.ones((args.seq_len, 1)), obs.reshape((1, -1)))
         done = False
-        while not done:
+        episode_step = 0
+        while not done and episode_step < args.max_episode_steps:
             if 'RNN' in args.policy_name:
                 action = policy.select_action(np.array(obs_vec))
             elif 'HRLACOP' in args.policy_name:
@@ -774,12 +777,13 @@ def evaluate_assembly_policy(env, policy, args, eval_episodes=10):
             if 'RNN' in args.policy_name:
                 obs_vec = utils.fifo_data(obs_vec, obs)
             avg_reward += reward
+            episode_step += 1
     avg_time = (time.time() - start_time)/eval_episodes
     avg_reward /= eval_episodes
     # print ("---------------------------------------"                      )
     # print ("Evaluation over %d episodes: %f" % (eval_episodes, avg_reward))
     # print ("---------------------------------------"                      )
-    return avg_reward
+    return avg_reward, avg_time
 
 
 def cal_true_value(env, policy, replay_buffer, args, eval_episodes=1000):

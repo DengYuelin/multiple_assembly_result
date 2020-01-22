@@ -64,16 +64,18 @@ class HRLACOP(object):
               tau=0.005,
               policy_freq=2):
 		self.it += 1
-		state, action, option, target_q, _ = \
+		state, action, option, target_q = \
 			self.calc_target_q(replay_buffer_lower, batch_size_lower, discount_lower, is_on_poliy=False)
 		self.train_critic(state, action, target_q)
 
 		# Delayed policy updates
 		if self.it % policy_freq == 0:
-			# the option from option network
-			high_q_value, option_estimated = self.option(state)
-			max_option_idx = torch.argmax(option_estimated, dim=1)
+			# option from option network
+			# high_q_value, option_estimated = self.option(state)
+			# max_option_idx = torch.argmax(option_estimated, dim=1)
+			max_option_idx = self.select_option(state)
 			action = self.actor(state)[torch.arange(state.shape[0]), :, max_option_idx]
+			
 			# ================ Train the actor =============================================#
 			# off-policy learning :: sample state and option pair from replay buffer
 			current_q_value, _ = self.critic(state, action)
@@ -166,35 +168,27 @@ class HRLACOP(object):
 		target_q = torch.min(target_q1, target_q2)
 		target_q = reward + (done * discount * target_q)
 
-		# for updating policy
-		action_1 = self.actor(state, option)
-		current_q_value = self.critic(state, action_1)
-		return state, action, option, target_q, current_q_value
+		return state, action, option, target_q
 
 	def calc_target_option_q(self, replay_buffer, batch_size=100, discount=0.99, is_on_poliy=True):
 		'''
 		calculate option value
-		:param replay_buffer:
-		:param batch_size:
-		:param discount: option policy discount
-		:param is_on_poliy:
-		:return:
 		'''
 		if is_on_poliy:
-			x, y, o, r = \
+			x, y, o, u, r = \
 				replay_buffer.sample_on_policy(batch_size, self.option_buffer_size)
 		else:
-			x, y, o, r = \
+			x, y, o, u, r = \
 				replay_buffer.sample(batch_size)
 
 		state = torch.FloatTensor(x).to(device)
 		next_state = torch.FloatTensor(y).to(device)
 		option = torch.FloatTensor(o).to(device)
+		next_option = torch.FloatTensor(u).to(device)
 		reward = torch.FloatTensor(r).to(device)
 		
 		high_q_value, option_estimated = self.option_target(next_state)
 		max_option_idx = torch.argmax(option_estimated, dim=1)
-		print('training_option', max_option_idx)
 		next_q = high_q_value.gather(1, max_option_idx)
 		print('training_q_value', next_q)
 		target_q = reward + discount * next_q
@@ -220,9 +214,10 @@ class HRLACOP(object):
 		'''
 		select options for training
 		'''
-		state = torch.FloatTensor(state.reshape(1, -1)).to(device)
-		_, option_num = self.option_target(state)
-		return option_num.data.max(1)[1].view(1, 1).cpu().data.numpy().flatten()
+		# state = torch.FloatTensor(state.reshape(1, -1)).to(device)
+		high_q_value, option_estimated = self.option(state)
+		max_option_idx = torch.argmax(option_estimated, dim=1)
+		return max_option_idx
 
 	def select_action(self, state, option):
 		state = torch.FloatTensor(state.reshape(1, -1)).to(device)

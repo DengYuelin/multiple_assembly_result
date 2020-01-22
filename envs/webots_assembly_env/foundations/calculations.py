@@ -1,8 +1,8 @@
 # Setting according to the defintion of problem
 import numpy as np
 import copy as cp
-from algorithms.pd.PD import PD
-from algorithms.MovingAverage import MA
+from code.tensorflow_code.pd.PD import PD
+from code.tensorflow_code.pd.MovingAverage import MA
 pd = PD()
 ma = MA(10)
 

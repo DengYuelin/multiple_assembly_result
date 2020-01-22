@@ -180,11 +180,9 @@ class ReplayBufferHighLevel(object):
             X, Y, O, U, R = storage[i]
             state.append(np.array(X, copy=False))
             next_state.append(np.array(Y, copy=False))
-            # action.append(np.array(U, copy=False))
             option.append(np.array(O, copy=False))
             next_option.append(np.array(U, copy=False))
             reward.append(np.array(R, copy=False))
-            # done.append(np.array(D, copy=False))
         return np.array(state), \
                np.array(next_state), \
                np.array(option), \
