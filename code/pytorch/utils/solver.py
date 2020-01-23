@@ -475,7 +475,7 @@ class Assembly_solver(object):
             self.timesteps_since_eval %= self.args.eval_freq
 
             # evaluate the policy for once
-            avg_reward, avg_time = evaluate_policy(self.env, self.policy, self.args)
+            avg_reward, avg_time = evaluate_assembly_policy(self.env, self.policy, self.args)
             self.evaluations_reward.append(avg_reward)
             self.evaluations_time.append(avg_time)
             self.writer_test.add_scalar('ave_reward', avg_reward, self.total_timesteps)
