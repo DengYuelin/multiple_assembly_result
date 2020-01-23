@@ -11,12 +11,12 @@ import numpy as np
 from code.pytorch.utils.solver import Solver, Assembly_solver
 
 
-def test_env(env):
-    env.reset()
-    state = np.random.rand(22)
-    print(env.set_robot(state) - state)
-    while True:
-        env.render()
+# def test_env(env):
+#     env.reset()
+#     state = np.random.rand(22)
+#     print(env.set_robot(state) - state)
+#     while True:
+#         env.render()
 
 
 def main(env, args):
