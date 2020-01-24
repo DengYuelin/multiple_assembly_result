@@ -5,22 +5,22 @@ project_path = './'
 sys.path.append("/usr/local/webots/lib")
 sys.path.insert(0, project_path + 'pytorch')
 print(sys.path)
-from envs import ArmEnv
+from envs.webots_assembly_env.simulation_env import ArmEnv
 import argparse
 import numpy as np
-from code.pytorch.utils.solver import Solver
+from code.pytorch.utils.solver import Solver, Assembly_solver
 
 
-def test_env(env):
-    env.reset()
-    state = np.random.rand(22)
-    print(env.set_robot(state) - state)
-    while True:
-        env.render()
+# def test_env(env):
+#     env.reset()
+#     state = np.random.rand(22)
+#     print(env.set_robot(state) - state)
+#     while True:
+#         env.render()
 
 
 def main(env, args):
-    solver = Solver(args, env, project_path)
+    solver = Assembly_solver(args, env, project_path)
     if not args.eval_only:
         solver.train()
     else:
@@ -40,6 +40,8 @@ if __name__ == "__main__":
     parser.add_argument("--learning_rate", default=3e-4, type=float)
     parser.add_argument("--seed", default=0, type=int)  # Sets Gym, PyTorch and Numpy seeds
     parser.add_argument("--start_timesteps", default=1e3, type=int)  # How many time steps purely random policy is run for
+    parser.add_argument("--max_episode_steps", default=2e2,
+                        type=int)  # How many time steps purely random policy is run for
     parser.add_argument("--eval_freq", default=5e3, type=int)  # How often (time steps) we evaluate
     parser.add_argument("--max_timesteps", default=1e5, type=int)  # Max time steps to run environment for
     parser.add_argument("--discount", default=0.99, type=float)  # Discount factor

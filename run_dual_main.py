@@ -6,19 +6,19 @@ sys.path.append("/usr/local/webots/lib")
 sys.path.insert(0, project_path + 'pytorch')
 print(sys.path)
 
-from envs.abb_assembly_env.Env_robot_assembly import env_assembly_search
-# from envs.webots_assembly_env.simulation_env import ArmEnv
+# from envs.abb_assembly_env.Env_robot_assembly import env_assembly_search
+from envs.webots_assembly_env.simulation_env import ArmEnv
 import argparse
 import numpy as np
 from code.pytorch.utils.solver import Assembly_solver
 
 
-def test_env(env):
-    env.reset()
-    state = np.random.rand(22)
-    print(env.set_robot(state) - state)
-    while True:
-        env.render()
+# def test_env(env):
+#     env.reset()
+#     state = np.random.rand(22)
+#     print(env.set_robot(state) - state)
+#     while True:
+#         env.render()
 
 
 def main(env, args):
@@ -69,10 +69,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    env = env_assembly_search(step_max=args.max_episode_steps,
-                              fuzzy=True,
-                              add_noise=False)
-
+    # env = env_assembly_search(step_max=args.max_episode_steps,
+    #                           fuzzy=True,
+    #                           add_noise=False)
+    env = ArmEnv()
     policy_name_vec = ['TD3']
 
     # average_steps = [5, 10, 20, 40]
@@ -86,6 +86,6 @@ if __name__ == "__main__":
 
     for policy_name in policy_name_vec:
         args.policy_name = policy_name
-        for i in range(0, 1):
+        for i in range(0, 5):
             args.seed = i
             main(env, args)
